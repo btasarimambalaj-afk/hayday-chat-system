@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: hayday-chat
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /ping
+    
+    # GitHub auto-deploy
+    repo: https://github.com/USERNAME/hayday-chat-system.git
+    branch: main
+    
+    # Environment variables (set in Render dashboard)
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ADMIN_TELEGRAM_ID
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HayDay Chat - Admin Girişi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-header {
+            margin-bottom: 32px;
+        }
+        
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .login-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .login-form {
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .form-input:disabled {
+            background: #f5f5f5;
+            color: #999;
+        }
+        
+        .form-button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .form-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+        
+        .form-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .step.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .step.pending {
+            background: #e0e0e0;
+            color: #999;
+        }
+        
+        .telegram-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .telegram-info h4 {
+            margin: 0 0 8px 0;
+            color: #2196F3;
+            font-size: 16px;
+        }
+        
+        .telegram-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .code-input {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-link {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .back-link a {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link a:hover {
+            color: #4CAF50;
+        }
+        
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 24px;
+                margin: 10px;
+            }
+            
+            .login-title {
+                font-size: 20px;
+            }
+            
+            .code-input {
+                font-size: 20px;
+                letter-spacing: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+                <div class="login-logo">🔐</div>
+                <h1 class="login-title">Admin Girişi</h1>
+                <p class="login-subtitle">HayDay Chat Yönetim Paneli</p>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">1</div>
+                <div class="step pending" id="step2">2</div>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div id="messageContainer"></div>
+
+            <!-- Step 1: Telegram ID Input -->
+            <div id="step1Content" class="login-form">
+                <div class="telegram-info">
+                    <h4>📱 Telegram Doğrulama</h4>
+                    <p>Giriş yapmak için Telegram ID'niz gerekiyor. Size 6 haneli bir kod gönderilecek.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="telegramId">Telegram ID</label>
+                    <input 
+                        type="text" 
+                        id="telegramId" 
+                        class="form-input" 
+                        placeholder="Telegram ID'nizi girin"
+                        value=""
+                    >
+                </div>
+
+                <button class="form-button" id="requestCodeBtn">
+                    <span id="requestBtnText">📤 Kod Gönder</span>
+                    <div id="requestSpinner" class="loading-spinner" style="display: none;"></div>
+                </button>
+            </div>
+
+            <!-- Step 2: Code Verification -->
+            <div id="step2Content" class="login-form" style="display: none;">
+                <div class="telegram-info">
+                    <h4>✅ Kod Doğrulama</h4>
+                    <p>Telegram'a gönderilen 6 haneli kodu girin. Kod 5 dakika geçerlidir.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="verificationCode">Doğrulama Kodu</label>
+                    <input 
+                        type="text" 
+                        id="verificationCode" 
+                        class="form-input code-input" 
+                        placeholder="000000"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                    >
+                </div>
+
+                <button class="form-button" id="verifyCodeBtn">
+                    <span id="verifyBtnText">🔓 Giriş Yap</span>
+                    <div id="verifySpinner" class="loading-spinner" style="display: none;"></div>
+                </button>
+
+                <button class="form-button" id="resendCodeBtn" style="background: #666; margin-top: 12px;">
+                    🔄 Yeni Kod Gönder
+                </button>
+            </div>
+
+            <!-- Back Link -->
+            <div class="back-link">
+                <a href="index.html">← Chat'e Dön</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AdminLogin {
+            constructor() {
+                this.currentStep = 1;
+                this.telegramId = '6476943853'; // Pre-filled for convenience
+                this.codeTimer = null;
+                this.init();
+            }
+
+            init() {
+                // Pre-fill Telegram ID
+                document.getElementById('telegramId').value = this.telegramId;
+                
+                this.setupEventListeners();
+                this.checkExistingToken();
+            }
+
+            setupEventListeners() {
+                // Request code button
+                document.getElementById('requestCodeBtn').addEventListener('click', () => {
+                    this.requestCode();
+                });
+
+                // Verify code button
+                document.getElementById('verifyCodeBtn').addEventListener('click', () => {
+                    this.verifyCode();
+                });
+
+                // Resend code button
+                document.getElementById('resendCodeBtn').addEventListener('click', () => {
+                    this.goBackToStep1();
+                });
+
+                // Enter key handling
+                document.getElementById('telegramId').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.requestCode();
+                    }
+                });
+
+                document.getElementById('verificationCode').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.verifyCode();
+                    }
+                });
+
+                // Auto-format verification code
+                document.getElementById('verificationCode').addEventListener('input', (e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 6) value = value.substring(0, 6);
+                    e.target.value = value;
+
+                    // Auto-submit when 6 digits entered
+                    if (value.length === 6) {
+                        setTimeout(() => this.verifyCode(), 500);
+                    }
+                });
+            }
+
+            checkExistingToken() {
+                const token = localStorage.getItem('admin_token');
+                if (token) {
+                    // Check if token is still valid
+                    this.showMessage('Mevcut oturum bulundu, yönlendiriliyor...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1000);
+                }
+            }
+
+            async requestCode() {
+                const telegramIdInput = document.getElementById('telegramId');
+                const telegramId = telegramIdInput.value.trim();
+
+                if (!telegramId) {
+                    this.showMessage('Lütfen Telegram ID\'nizi girin', 'error');
+                    telegramIdInput.focus();
+                    return;
+                }
+
+                this.setButtonLoading('requestCodeBtn', true);
+
+                try {
+                    const response = await fetch('/api/admin/request-code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            telegramId: telegramId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        this.telegramId = telegramId;
+                        this.showMessage('✅ Kod Telegram\'a gönderildi!', 'success');
+                        this.goToStep2();
+                    } else {
+                        this.showMessage(data.error || 'Kod gönderilemedi', 'error');
+                    }
+                } catch (error) {
+                    console.error('Request code error:', error);
+                    this.showMessage('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
+                } finally {
+                    this.setButtonLoading('requestCodeBtn', false);
+                }
+            }
+
+            async verifyCode() {
+                const codeInput = document.getElementById('verificationCode');
+                const code = codeInput.value.trim();
+
+                if (!code || code.length !== 6) {
+                    this.showMessage('Lütfen 6 haneli kodu girin', 'error');
+                    codeInput.focus();
+                    return;
+                }
+
+                this.setButtonLoading('verifyCodeBtn', true);
+
+                try {
+                    const response = await fetch('/api/admin/verify-code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            telegramId: this.telegramId,
+                            code: code
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        // Store token
+                        localStorage.setItem('admin_token', data.token);
+                        
+                        this.showMessage('🎉 Giriş başarılı! Yönlendiriliyor...', 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 1500);
+                    } else {
+                        this.showMessage(data.error || 'Geçersiz kod', 'error');
+                        codeInput.value = '';
+                        codeInput.focus();
+                    }
+                } catch (error) {
+                    console.error('Verify code error:', error);
+                    this.showMessage('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
+                } finally {
+                    this.setButtonLoading('verifyCodeBtn', false);
+                }
+            }
+
+            goToStep2() {
+                this.currentStep = 2;
+                
+                // Update step indicator
+                document.getElementById('step1').className = 'step completed';
+                document.getElementById('step2').className = 'step active';
+                
+                // Show/hide content
+                document.getElementById('step1Content').style.display = 'none';
+                document.getElementById('step2Content').style.display = 'block';
+                
+                // Focus verification code input
+                setTimeout(() => {
+                    document.getElementById('verificationCode').focus();
+                }, 100);
+
+                // Start countdown timer
+                this.startCodeTimer();
+            }
+
+            goBackToStep1() {
+                this.currentStep = 1;
+                
+                // Update step indicator
+                document.getElementById('step1').className = 'step active';
+                document.getElementById('step2').className = 'step pending';
+                
+                // Show/hide content
+                document.getElementById('step1Content').style.display = 'block';
+                document.getElementById('step2Content').style.display = 'none';
+                
+                // Clear verification code
+                document.getElementById('verificationCode').value = '';
+                
+                // Clear messages
+                this.clearMessages();
+
+                // Clear timer
+                if (this.codeTimer) {
+                    clearTimeout(this.codeTimer);
+                }
+            }
+
+            startCodeTimer() {
+                // Show expiry warning after 4 minutes
+                this.codeTimer = setTimeout(() => {
+                    this.showMessage('⏰ Kod 1 dakika içinde sona erecek', 'warning');
+                }, 4 * 60 * 1000);
+            }
+
+            setButtonLoading(buttonId, loading) {
+                const button = document.getElementById(buttonId);
+                const textSpan = document.getElementById(buttonId.replace('Btn', 'BtnText'));
+                const spinner = document.getElementById(buttonId.replace('Btn', 'Spinner'));
+                
+                button.disabled = loading;
+                textSpan.style.display = loading ? 'none' : 'inline';
+                spinner.style.display = loading ? 'inline-block' : 'none';
+            }
+
+            showMessage(message, type = 'info') {
+                const container = document.getElementById('messageContainer');
+                const className = type === 'error' ? 'error-message' : 
+                                type === 'success' ? 'success-message' : 
+                                'telegram-info';
+                
+                container.innerHTML = `
+                    <div class="${className}">
+                        ${message}
+                    </div>
+                `;
+
+                // Auto-clear success messages
+                if (type === 'success' || type === 'warning') {
+                    setTimeout(() => {
+                        this.clearMessages();
+                    }, 5000);
+                }
+            }
+
+            clearMessages() {
+                document.getElementById('messageContainer').innerHTML = '';
+            }
+        }
+
+        // Initialize login system
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdminLogin();
+        });
+    </script>
+</body>
+</html>

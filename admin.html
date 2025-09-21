@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HayDay Chat - Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--background);
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .admin-title h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .notification-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .tab-navigation {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(76, 175, 80, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .conversations-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .conversation-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .conversation-item:hover {
+            background: var(--surface-dark);
+        }
+        
+        .conversation-item:last-child {
+            border-bottom: none;
+        }
+        
+        .conversation-info {
+            flex: 1;
+        }
+        
+        .conversation-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .client-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .conversation-preview {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .conversation-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-view {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-takeover {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 10px;
+            }
+            
+            .tab-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                flex: 1 1 50%;
+                min-width: 120px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .conversation-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .conversation-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="admin-title">
+                <span class="admin-avatar">👨‍💼</span>
+                <h1>HayDay Chat Admin</h1>
+            </div>
+            <div class="admin-actions">
+                <span class="notification-badge" id="notificationCount">0</span>
+                <span id="adminName">Admin</span>
+                <button class="logout-btn" id="logoutBtn">🚪 Çıkış</button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="dashboard">📊 Dashboard</button>
+                <button class="tab-button" data-tab="live">💬 Canlı</button>
+                <button class="tab-button" data-tab="history">📋 Geçmiş</button>
+                <button class="tab-button" data-tab="training">🧠 Eğitim</button>
+                <button class="tab-button" data-tab="settings">⚙️ Ayarlar</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboard">
+                <button class="refresh-btn" id="refreshDashboard">🔄 Yenile</button>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayMessages">-</div>
+                        <div class="stat-label">Bugün Mesaj</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeChats">-</div>
+                        <div class="stat-label">Aktif Sohbet</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="botSuccess">-</div>
+                        <div class="stat-label">Bot Başarı %</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="aiUsage">-</div>
+                        <div class="stat-label">AI Kullanım %</div>
+                    </div>
+                </div>
+
+                <div class="conversations-list">
+                    <div class="conversation-item">
+                        <div style="padding: 20px; text-align: center; width: 100%;">
+                            <div class="loading-spinner"></div>
+                            <p style="margin: 12px 0 0 0; color: var(--text-secondary);">Dashboard yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Chats Tab -->
+            <div class="tab-content" id="live">
+                <button class="refresh-btn" id="refreshLive">🔄 Canlı Sohbetleri Yenile</button>
+                
+                <div class="conversations-list" id="liveConversations">
+                    <div class="empty-state">
+                        <p>🔍 Canlı sohbet yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-content" id="history">
+                <button class="refresh-btn" id="refreshHistory">🔄 Geçmişi Yenile</button>
+                
+                <div class="conversations-list" id="historyConversations">
+                    <div class="empty-state">
+                        <p>📋 Sohbet geçmişi yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Tab -->
+            <div class="tab-content" id="training">
+                <div class="conversations-list">
+                    <div class="conversation-item">
+                        <div class="conversation-info">
+                            <h3>🧠 ChatBot Eğitim Merkezi</h3>
+                            <p>Pattern yönetimi ve AI eğitimi (v2'de gelecek)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings">
+                <div class="conversations-list">
+                    <div class="conversation-item">
+                        <div class="conversation-info">
+                            <h3>⚙️ Sistem Ayarları</h3>
+                            <p>Konfigürasyon ve tercihler (v2'de gelecek)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AdminPanel {
+            constructor() {
+                this.currentTab = 'dashboard';
+                this.refreshInterval = null;
+                this.pollingInterval = null;
+                this.token = localStorage.getItem('admin_token');
+                this.lastUpdate = Date.now();
+                
+                if (!this.token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadDashboard();
+                this.startAutoRefresh();
+                this.startRealTimePolling();
+            }
+
+            setupEventListeners() {
+                // Tab switching
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        this.switchTab(e.target.dataset.tab);
+                    });
+                });
+
+                // Refresh buttons
+                document.getElementById('refreshDashboard').addEventListener('click', () => this.loadDashboard());
+                document.getElementById('refreshLive').addEventListener('click', () => this.loadLiveChats());
+                document.getElementById('refreshHistory').addEventListener('click', () => this.loadHistory());
+
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+
+                // Auto-refresh every 30 seconds
+                this.startAutoRefresh();
+            }
+
+            switchTab(tabName) {
+                // Update buttons
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tabName).classList.add('active');
+
+                this.currentTab = tabName;
+
+                // Load content based on tab
+                switch(tabName) {
+                    case 'dashboard':
+                        this.loadDashboard();
+                        break;
+                    case 'live':
+                        this.loadLiveChats();
+                        break;
+                    case 'history':
+                        this.loadHistory();
+                        break;
+                }
+            }
+
+            async loadDashboard() {
+                try {
+                    const response = await fetch('/api/admin/dashboard', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            this.logout();
+                            return;
+                        }
+                        throw new Error('Dashboard yüklenemedi');
+                    }
+
+                    const data = await response.json();
+                    this.updateDashboardStats(data);
+                    this.updateActiveChats(data.activeChats || []);
+                    this.lastUpdate = Date.now();
+
+                } catch (error) {
+                    console.error('Dashboard error:', error);
+                    this.showError('Dashboard yüklenirken hata oluştu');
+                }
+            }
+
+            updateDashboardStats(data) {
+                const stats = data.stats || {};
+                const today = stats.today || {};
+
+                document.getElementById('todayMessages').textContent = today.total || 0;
+                document.getElementById('activeChats').textContent = stats.activeConversations || 0;
+                
+                // Calculate bot success rate
+                const total = today.total || 1;
+                const botSuccess = Math.round(((today.chatbot || 0) / total) * 100);
+                const aiUsage = Math.round(((today.ai || 0) / total) * 100);
+                
+                document.getElementById('botSuccess').textContent = botSuccess;
+                document.getElementById('aiUsage').textContent = aiUsage;
+
+                // Update notification count
+                document.getElementById('notificationCount').textContent = stats.activeConversations || 0;
+            }
+
+            updateActiveChats(activeChats) {
+                const container = document.querySelector('#dashboard .conversations-list');
+                
+                if (activeChats.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>🌙 Şu anda aktif sohbet yok</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = activeChats.map(chat => {
+                    const lastMessage = chat.lastMessage || {};
+                    const time = new Date(chat.lastActivity).toLocaleTimeString('tr-TR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const roleConfig = {
+                        user: '👤',
+                        chatbot: '🤖',
+                        ai: '🧠',
+                        admin: '👨‍💼'
+                    };
+
+                    // Check if conversation needs attention
+                    const needsAttention = this.checkIfNeedsAttention(chat);
+                    const attentionClass = needsAttention ? 'needs-attention' : '';
+
+                    return `
+                        <div class="conversation-item ${attentionClass}" data-client-id="${chat.clientId}">
+                            <div class="conversation-info">
+                                <div class="conversation-meta">
+                                    <div class="client-avatar">${chat.clientId.substr(-2).toUpperCase()}</div>
+                                    <span><strong>Kullanıcı ${chat.clientId.substr(-4)}</strong></span>
+                                    <span>•</span>
+                                    <span>${time}</span>
+                                    <span>•</span>
+                                    <span>${roleConfig[lastMessage.role] || '🤖'}</span>
+                                    ${needsAttention ? '<span class="attention-badge">⚠️</span>' : ''}
+                                </div>
+                                <div class="conversation-preview">
+                                    "${(lastMessage.content || 'Mesaj yok').substring(0, 100)}${lastMessage.content && lastMessage.content.length > 100 ? '...' : ''}"
+                                </div>
+                            </div>
+                            <div class="conversation-actions">
+                                <button class="action-btn btn-view" onclick="adminPanel.viewConversation('${chat.clientId}')">
+                                    👁️ Görüntüle
+                                </button>
+                                <button class="action-btn btn-takeover" onclick="adminPanel.takeoverConversation('${chat.clientId}')">
+                                    ✋ Devral
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add attention styling
+                const style = document.createElement('style');
+                style.textContent = `
+                    .needs-attention {
+                        border-left: 4px solid #ff9800 !important;
+                        background: rgba(255, 152, 0, 0.05) !important;
+                    }
+                    .attention-badge {
+                        color: #ff9800;
+                        font-weight: bold;
+                    }
+                `;
+                if (!document.getElementById('attention-styles')) {
+                    style.id = 'attention-styles';
+                    document.head.appendChild(style);
+                }
+            }
+
+            checkIfNeedsAttention(chat) {
+                const lastMessage = chat.lastMessage || {};
+                const timeSinceLastActivity = Date.now() - chat.lastActivity;
+                
+                // Needs attention if:
+                // 1. Last message was from user and more than 5 minutes ago
+                // 2. AI confidence was low
+                // 3. Multiple escalations happened
+                
+                if (lastMessage.role === 'user' && timeSinceLastActivity > 5 * 60 * 1000) {
+                    return true;
+                }
+                
+                if (lastMessage.confidence && lastMessage.confidence < 0.5) {
+                    return true;
+                }
+                
+                return false;
+            }
+
+            async loadLiveChats() {
+                // Same as dashboard but focus on real-time updates
+                await this.loadDashboard();
+                const dashboardList = document.querySelector('#dashboard .conversations-list');
+                const liveList = document.getElementById('liveConversations');
+                liveList.innerHTML = dashboardList.innerHTML;
+                
+                // Add real-time indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'realtime-indicator';
+                indicator.innerHTML = `
+                    <span class="status-dot"></span>
+                    <span>Canlı güncelleme aktif</span>
+                `;
+                liveList.insertBefore(indicator, liveList.firstChild);
+                
+                // Add real-time styles
+                if (!document.getElementById('realtime-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'realtime-styles';
+                    style.textContent = `
+                        .realtime-indicator {
+                            padding: 10px;
+                            background: #e8f5e8;
+                            border-radius: 8px;
+                            margin-bottom: 10px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            font-size: 14px;
+                            color: #2e7d32;
+                        }
+                        .status-dot {
+                            width: 8px;
+                            height: 8px;
+                            background: #4caf50;
+                            border-radius: 50%;
+                            animation: pulse 2s infinite;
+                        }
+                        @keyframes pulse {
+                            0% { opacity: 1; }
+                            50% { opacity: 0.5; }
+                            100% { opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            async loadHistory() {
+                try {
+                    const response = await fetch('/api/admin/conversations', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.renderConversationHistory(data.conversations || []);
+                    } else {
+                        throw new Error('History yüklenemedi');
+                    }
+                } catch (error) {
+                    const container = document.getElementById('historyConversations');
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>❌ Geçmiş konuşmalar yüklenemedi</p>
+                            <button onclick="adminPanel.loadHistory()">🔄 Tekrar Dene</button>
+                        </div>
+                    `;
+                }
+            }
+
+            renderConversationHistory(conversations) {
+                const container = document.getElementById('historyConversations');
+                
+                if (conversations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>📋 Henüz konuşma geçmişi yok</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = conversations.map(conv => {
+                    const startTime = new Date(conv.startTime).toLocaleString('tr-TR');
+                    const lastActivity = new Date(conv.lastActivity).toLocaleString('tr-TR');
+                    const duration = Math.round((conv.lastActivity - conv.startTime) / 1000 / 60); // minutes
+                    
+                    return `
+                        <div class="conversation-item">
+                            <div class="conversation-info">
+                                <div class="conversation-meta">
+                                    <div class="client-avatar">${conv.clientId.substr(-2).toUpperCase()}</div>
+                                    <span><strong>Kullanıcı ${conv.clientId.substr(-4)}</strong></span>
+                                    <span>•</span>
+                                    <span>${conv.messageCount} mesaj</span>
+                                    <span>•</span>
+                                    <span>${duration} dk</span>
+                                </div>
+                                <div class="conversation-preview">
+                                    <strong>Başlangıç:</strong> ${startTime}<br>
+                                    <strong>Son aktivite:</strong> ${lastActivity}
+                                </div>
+                            </div>
+                            <div class="conversation-actions">
+                                <button class="action-btn btn-view" onclick="adminPanel.viewConversationDetails('${conv.clientId}')">
+                                    📋 Detaylar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            startAutoRefresh() {
+                // Refresh every 30 seconds when on dashboard or live tab
+                this.refreshInterval = setInterval(() => {
+                    if (this.currentTab === 'dashboard' || this.currentTab === 'live') {
+                        this.loadDashboard();
+                    }
+                }, 30000);
+            }
+
+            startRealTimePolling() {
+                // More frequent polling for real-time updates (every 10 seconds)
+                this.pollingInterval = setInterval(() => {
+                    if (this.currentTab === 'live') {
+                        this.checkForNewActivity();
+                    }
+                }, 10000);
+            }
+
+            async checkForNewActivity() {
+                try {
+                    const response = await fetch(`/api/chat/poll/admin?after=${this.lastUpdate}`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.newMessages && data.newMessages.length > 0) {
+                            this.handleNewMessages(data.newMessages);
+                            this.lastUpdate = data.lastTimestamp;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }
+
+            handleNewMessages(newMessages) {
+                // Show notification for new messages
+                newMessages.forEach(msg => {
+                    if (msg.role === 'user') {
+                        this.showNotification(`💬 Yeni mesaj: ${msg.clientId.substr(-4)}`, msg.content.substring(0, 50));
+                    }
+                });
+                
+                // Refresh active chats if on live tab
+                if (this.currentTab === 'live') {
+                    this.loadLiveChats();
+                }
+                
+                // Update notification badge
+                const currentCount = parseInt(document.getElementById('notificationCount').textContent) || 0;
+                document.getElementById('notificationCount').textContent = currentCount + newMessages.filter(m => m.role === 'user').length;
+            }
+
+            showNotification(title, message) {
+                // Browser notification if permission granted
+                if (Notification.permission === 'granted') {
+                    new Notification(title, {
+                        body: message,
+                        icon: '/favicon.ico'
+                    });
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            new Notification(title, {
+                                body: message,
+                                icon: '/favicon.ico'
+                            });
+                        }
+                    });
+                }
+                
+                // In-app notification
+                this.showToast(`${title}: ${message}`, 'info');
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : '#2196F3'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    max-width: 300px;
+                    animation: slideIn 0.3s ease;
+                `;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            }
+
+            viewConversation(clientId) {
+                // Open conversation in modal (v2 feature)
+                alert(`Konuşma görüntüleme: ${clientId}\n(v2'de modal ile açılacak)`);
+            }
+
+            viewConversationDetails(clientId) {
+                // Show detailed conversation history
+                alert(`Detaylı konuşma: ${clientId}\n(v2'de tam geçmiş gösterilecek)`);
+            }
+
+            takeoverConversation(clientId) {
+                const confirm = window.confirm(`${clientId} kullanıcısının konuşmasını devral?`);
+                if (confirm) {
+                    this.performTakeover(clientId);
+                }
+            }
+
+            async performTakeover(clientId) {
+                try {
+                    const response = await fetch('/api/admin/takeover', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.token}`
+                        },
+                        body: JSON.stringify({ conversationId: clientId })
+                    });
+                    
+                    if (response.ok) {
+                        this.showToast('Konuşma devralındı!', 'success');
+                        this.loadDashboard();
+                    } else {
+                        throw new Error('Devralma başarısız');
+                    }
+                } catch (error) {
+                    this.showToast('Devralma hatası: ' + error.message, 'error');
+                }
+            }
+
+            showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #f44336;
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    z-index: 1000;
+                `;
+                errorDiv.textContent = message;
+                document.body.appendChild(errorDiv);
+
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            }
+
+            logout() {
+                localStorage.removeItem('admin_token');
+                if (this.refreshInterval) {
+                    clearInterval(this.refreshInterval);
+                }
+                if (this.pollingInterval) {
+                    clearInterval(this.pollingInterval);
+                }
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize admin panel
+        let adminPanel;
+        document.addEventListener('DOMContentLoaded', () => {
+            adminPanel = new AdminPanel();
+            
+            // Request notification permission
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        });
+    </script>
+</body>
+</html>

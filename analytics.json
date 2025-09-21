@@ -1,0 +1,12 @@
+{
+  "2024-01-15": {
+    "total": 47,
+    "chatbot": 32,
+    "ai": 12,
+    "admin": 3
+  },
+  "weekly_stats": {
+    "messages": 280,
+    "avg_response_time": 1.2
+  }
+}

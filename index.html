@@ -81,9 +81,8 @@
         <span class="status-text">Bağlantı kuruluyor...</span>
     </div>
 
-    <script src="script.js"></script>
     <script>
-        // UUID Generation Function (simple version)
+        // UUID Generation Function
         function generateUUID() {
             return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
@@ -113,6 +112,7 @@
                 this.loadHistory();
                 this.focusInput();
                 this.startPolling();
+                console.log('HayDay Chat initialized with clientId:', this.clientId);
             }
 
             setupEventListeners() {
@@ -120,6 +120,11 @@
                 const sendButton = document.getElementById('sendButton');
                 const searchBtn = document.getElementById('searchBtn');
                 const closeBtn = document.getElementById('closeBtn');
+
+                if (!messageInput || !sendButton) {
+                    console.error('Critical elements not found');
+                    return;
+                }
 
                 // Send message
                 sendButton.addEventListener('click', () => this.sendMessage());
@@ -130,13 +135,13 @@
                     }
                 });
 
-                // Input validation
+                // Input validation - CRITICAL FIX
                 messageInput.addEventListener('input', () => {
                     const text = messageInput.value.trim();
                     const charCount = document.getElementById('charCount');
                     
                     sendButton.disabled = text.length === 0;
-                    charCount.textContent = `${text.length}/1000`;
+                    if (charCount) charCount.textContent = `${text.length}/1000`;
                     
                     // Auto-resize textarea
                     messageInput.style.height = 'auto';
@@ -144,16 +149,22 @@
                 });
 
                 // Search functionality
-                searchBtn.addEventListener('click', () => this.toggleSearch());
+                if (searchBtn) {
+                    searchBtn.addEventListener('click', () => this.toggleSearch());
+                }
 
                 // Close button
-                closeBtn.addEventListener('click', () => {
-                    if (window.opener) {
-                        window.close();
-                    } else {
-                        window.history.back();
-                    }
-                });
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        if (window.opener) {
+                            window.close();
+                        } else {
+                            window.history.back();
+                        }
+                    });
+                }
+
+                console.log('Event listeners setup complete');
             }
 
             async loadHistory() {
@@ -188,10 +199,13 @@
                 
                 if (!message) return;
 
+                console.log('Sending message:', message);
+
                 // Clear input
                 messageInput.value = '';
                 messageInput.style.height = 'auto';
-                document.getElementById('charCount').textContent = '0/1000';
+                const charCount = document.getElementById('charCount');
+                if (charCount) charCount.textContent = '0/1000';
                 document.getElementById('sendButton').disabled = true;
 
                 // Add user message to DOM
@@ -213,6 +227,7 @@
                     });
 
                     const data = await response.json();
+                    console.log('API Response:', data);
 
                     if (response.ok) {
                         if (data.role === 'ai') {
@@ -291,8 +306,8 @@
                     admin: 'Destek Uzmanı'
                 };
 
-                typingRole.textContent = roleNames[role] || 'HayDay Bot';
-                typingIndicator.style.display = 'flex';
+                if (typingRole) typingRole.textContent = roleNames[role] || 'HayDay Bot';
+                if (typingIndicator) typingIndicator.style.display = 'flex';
                 this.scrollToBottom();
             }
 
@@ -303,11 +318,12 @@
                     ai: 'Yapay Zeka',
                     admin: 'Destek Uzmanı'
                 };
-                typingRole.textContent = roleNames[role] || 'HayDay Bot';
+                if (typingRole) typingRole.textContent = roleNames[role] || 'HayDay Bot';
             }
 
             hideTyping() {
-                document.getElementById('typingIndicator').style.display = 'none';
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) typingIndicator.style.display = 'none';
             }
 
             toggleSearch() {
@@ -316,9 +332,9 @@
                 
                 if (searchContainer.style.display === 'none') {
                     searchContainer.style.display = 'flex';
-                    searchInput.focus();
+                    if (searchInput) searchInput.focus();
                 } else {
-                    searchInput.value = '';
+                    if (searchInput) searchInput.value = '';
                     searchContainer.style.display = 'none';
                     document.querySelectorAll('.message').forEach(msg => {
                         msg.style.display = 'block';
@@ -329,13 +345,16 @@
             scrollToBottom() {
                 setTimeout(() => {
                     const messagesContainer = document.getElementById('chatMessages');
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    if (messagesContainer) {
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
                 }, 100);
             }
 
             focusInput() {
                 setTimeout(() => {
-                    document.getElementById('messageInput').focus();
+                    const messageInput = document.getElementById('messageInput');
+                    if (messageInput) messageInput.focus();
                 }, 100);
             }
 
@@ -381,17 +400,26 @@
 
         // Initialize chat when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            const chat = new HayDayChat();
+            console.log('DOM Content Loaded');
             
-            // Request notification permission
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
+            try {
+                const chat = new HayDayChat();
+                window.haydayChat = chat; // For debugging
+                
+                // Request notification permission
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+                
+                // Clean up on page unload
+                window.addEventListener('beforeunload', () => {
+                    chat.beforeUnload();
+                });
+                
+                console.log('HayDay Chat system initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize HayDay Chat:', error);
             }
-            
-            // Clean up on page unload
-            window.addEventListener('beforeunload', () => {
-                chat.beforeUnload();
-            });
         });
     </script>
 </body>

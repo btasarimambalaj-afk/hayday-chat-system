@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: hayday-chat
+    name: hayday-chat-system
     env: node
     region: oregon
     plan: free
@@ -14,13 +14,11 @@ services:
     
     # Environment variables (set in Render dashboard)
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: OPENAI_API_KEY
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: ADMIN_TELEGRAM_ID
         sync: false
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000

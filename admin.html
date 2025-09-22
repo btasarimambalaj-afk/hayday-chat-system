@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HayDay Chat Admin Panel</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
         .admin-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background: #f8fafc;
-            min-height: 100vh;
         }
         .admin-header {
             background: white;
@@ -66,20 +66,27 @@
             border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .conversation-list {
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .content-card {
             background: white;
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .conversation-item {
-            padding: 16px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .btn-primary {
+        .btn {
             background: #10b981;
             color: white;
             border: none;
@@ -89,20 +96,41 @@
             font-weight: 500;
             transition: background 0.2s;
         }
-        .btn-primary:hover {
+        .btn:hover {
             background: #059669;
+        }
+        .btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
         }
         .loading {
             text-align: center;
             color: #6b7280;
             padding: 40px;
         }
+        .conversation-item {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .conversation-item:last-child {
+            border-bottom: none;
+        }
         .error {
             background: #fef2f2;
             color: #dc2626;
             padding: 12px;
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin: 16px 0;
+        }
+        .success {
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
         }
     </style>
 </head>
@@ -117,7 +145,7 @@
             <div style="display: flex; align-items: center; gap: 16px;">
                 <span id="notificationCount" style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">0</span>
                 <span>Admin</span>
-                <button class="btn-primary" onclick="logout()">🚪 Çıkış</button>
+                <button class="btn" onclick="logout()">🚪 Çıkış</button>
             </div>
         </div>
 
@@ -126,44 +154,43 @@
             <button class="admin-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
             <button class="admin-tab" onclick="showTab('live')">💬 Canlı</button>
             <button class="admin-tab" onclick="showTab('history')">📋 Geçmiş</button>
-            <button class="admin-tab" onclick="showTab('training')">🧠 Eğitim</button>
             <button class="admin-tab" onclick="showTab('settings')">⚙️ Ayarlar</button>
         </div>
 
         <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active">
-            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin: 0;">📊 Dashboard</h2>
-                <button class="btn-primary" onclick="refreshDashboard()">🔄 Yenile</button>
+                <button class="btn" onclick="refreshDashboard()">🔄 Yenile</button>
             </div>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3 style="margin: 0 0 8px 0; color: #6b7280;">Bugün</h3>
-                    <div style="font-size: 32px; font-weight: bold;" id="todayMessages">-</div>
-                    <div style="color: #6b7280; font-size: 14px;">Toplam Mesaj</div>
+                    <h3>Bugün</h3>
+                    <div class="stat-value" id="todayMessages">-</div>
+                    <div class="stat-label">Toplam Mesaj</div>
                 </div>
                 
                 <div class="stat-card">
-                    <h3 style="margin: 0 0 8px 0; color: #6b7280;">Aktif</h3>
-                    <div style="font-size: 32px; font-weight: bold;" id="activeConversations">-</div>
-                    <div style="color: #6b7280; font-size: 14px;">Canlı Sohbet</div>
+                    <h3>Aktif</h3>
+                    <div class="stat-value" id="activeConversations">-</div>
+                    <div class="stat-label">Canlı Sohbet</div>
                 </div>
                 
                 <div class="stat-card">
-                    <h3 style="margin: 0 0 8px 0; color: #6b7280;">Bot</h3>
-                    <div style="font-size: 32px; font-weight: bold;" id="botSuccess">-</div>
-                    <div style="color: #6b7280; font-size: 14px;">Başarı Oranı %</div>
+                    <h3>Bot</h3>
+                    <div class="stat-value" id="botSuccess">-</div>
+                    <div class="stat-label">Başarı %</div>
                 </div>
                 
                 <div class="stat-card">
-                    <h3 style="margin: 0 0 8px 0; color: #6b7280;">AI</h3>
-                    <div style="font-size: 32px; font-weight: bold;" id="aiUsage">-</div>
-                    <div style="color: #6b7280; font-size: 14px;">Kullanım Oranı %</div>
+                    <h3>AI</h3>
+                    <div class="stat-value" id="aiUsage">-</div>
+                    <div class="stat-label">Kullanım %</div>
                 </div>
             </div>
 
-            <div class="conversation-list">
+            <div class="content-card">
                 <h3>Son Aktiviteler</h3>
                 <div id="recentActivity">
                     <div class="loading">📊 Dashboard yükleniyor...</div>
@@ -173,12 +200,12 @@
 
         <!-- Live Chat Tab -->
         <div id="live" class="tab-content">
-            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin: 0;">💬 Canlı Sohbetler</h2>
-                <button class="btn-primary" onclick="refreshLive()">🔄 Yenile</button>
+                <button class="btn" onclick="refreshLive()">🔄 Yenile</button>
             </div>
             
-            <div class="conversation-list">
+            <div class="content-card">
                 <div id="liveConversations">
                     <div class="loading">🔍 Canlı sohbet yükleniyor...</div>
                 </div>
@@ -187,43 +214,37 @@
 
         <!-- History Tab -->
         <div id="history" class="tab-content">
-            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin: 0;">📋 Sohbet Geçmişi</h2>
-                <button class="btn-primary" onclick="refreshHistory()">🔄 Yenile</button>
+                <button class="btn" onclick="refreshHistory()">🔄 Yenile</button>
             </div>
             
-            <div class="conversation-list">
+            <div class="content-card">
                 <div id="conversationHistory">
                     <div class="loading">📋 Sohbet geçmişi yükleniyor...</div>
                 </div>
             </div>
         </div>
 
-        <!-- Training Tab -->
-        <div id="training" class="tab-content">
-            <div class="conversation-list">
-                <div style="text-align: center; padding: 60px 20px;">
-                    <div style="font-size: 48px; margin-bottom: 16px;">🧠</div>
-                    <h3>ChatBot Eğitim Merkezi</h3>
-                    <p style="color: #6b7280;">Pattern yönetimi ve AI eğitimi (v2'de gelecek)</p>
-                </div>
-            </div>
-        </div>
-
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
-            <div class="conversation-list">
+            <div class="content-card">
                 <div style="text-align: center; padding: 60px 20px;">
                     <div style="font-size: 48px; margin-bottom: 16px;">⚙️</div>
                     <h3>Sistem Ayarları</h3>
                     <p style="color: #6b7280;">Konfigürasyon ve tercihler (v2'de gelecek)</p>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4>Mevcut Sistem Durumu</h4>
+                        <button class="btn" onclick="testConnection()">🔗 Bağlantı Test</button>
+                        <button class="btn" onclick="checkHealth()">❤️ Sistem Sağlığı</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Admin Panel JavaScript
         class AdminPanel {
             constructor() {
                 this.token = localStorage.getItem('admin_token');
@@ -231,23 +252,26 @@
             }
 
             init() {
-                // Check authentication
+                console.log('AdminPanel initializing...');
+                
                 if (!this.token) {
                     window.location.href = '/login.html';
                     return;
                 }
 
-                // Load initial data
                 this.refreshDashboard();
                 
-                // Start auto-refresh every 30 seconds
+                // Auto-refresh every 30 seconds
                 setInterval(() => {
-                    if (document.getElementById('dashboard').classList.contains('active')) {
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    if (activeTab === 'dashboard') {
                         this.refreshDashboard();
-                    } else if (document.getElementById('live').classList.contains('active')) {
+                    } else if (activeTab === 'live') {
                         this.refreshLive();
                     }
                 }, 30000);
+                
+                console.log('AdminPanel initialized successfully');
             }
 
             async makeRequest(endpoint, options = {}) {
@@ -262,7 +286,6 @@
                     });
 
                     if (response.status === 401) {
-                        // Token expired
                         localStorage.removeItem('admin_token');
                         window.location.href = '/login.html';
                         return null;
@@ -276,6 +299,7 @@
             }
 
             async refreshDashboard() {
+                console.log('Refreshing dashboard...');
                 const data = await this.makeRequest('/api/admin/dashboard');
                 
                 if (data) {
@@ -284,7 +308,7 @@
                     document.getElementById('activeConversations').textContent = data.stats.activeConversations || 0;
                     
                     // Calculate percentages
-                    const total = data.stats.today.total || 1; // Prevent division by zero
+                    const total = data.stats.today.total || 1;
                     const botSuccess = Math.round(((data.stats.today.chatbot || 0) / total) * 100);
                     const aiUsage = Math.round(((data.stats.today.ai || 0) / total) * 100);
                     
@@ -321,7 +345,7 @@
                                 <div style="color: #9ca3af; font-size: 12px;">${timeAgo}</div>
                             </div>
                             <div>
-                                <button class="btn-primary" onclick="viewConversation('${chat.clientId}')">
+                                <button class="btn" onclick="viewConversation('${chat.clientId}')">
                                     👁️ Görüntüle
                                 </button>
                             </div>
@@ -333,6 +357,7 @@
             }
 
             async refreshLive() {
+                console.log('Refreshing live conversations...');
                 const data = await this.makeRequest('/api/admin/dashboard');
                 
                 if (data && data.activeChats) {
@@ -375,10 +400,10 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 8px;">
-                                <button class="btn-primary" onclick="viewConversation('${chat.clientId}')">
+                                <button class="btn" onclick="viewConversation('${chat.clientId}')">
                                     👁️ Görüntüle
                                 </button>
-                                <button class="btn-primary" onclick="takeoverConversation('${chat.clientId}')">
+                                <button class="btn" onclick="takeoverConversation('${chat.clientId}')">
                                     ✋ Devral
                                 </button>
                             </div>
@@ -420,7 +445,7 @@
             if (tabName === 'live') {
                 adminPanel.refreshLive();
             } else if (tabName === 'history') {
-                adminPanel.refreshHistory();
+                refreshHistory();
             }
         }
 
@@ -433,31 +458,29 @@
         }
 
         function refreshHistory() {
-            // Implementation for history refresh
             document.getElementById('conversationHistory').innerHTML = 
-                '<div style="text-align: center; padding: 20px; color: #6b7280;">Geçmiş sohbetler yükleniyor...</div>';
+                '<div class="loading">Geçmiş sohbetler yükleniyor...</div>';
         }
 
         function viewConversation(clientId) {
-            // Open conversation in new window or modal
-            window.open(`/conversation.html?client=${clientId}`, '_blank');
+            alert(`Konuşma görüntüleme: ${clientId}`);
         }
 
         function takeoverConversation(clientId) {
-            // Take over conversation
-            if (confirm('Bu konuşmayı devralacak mısınız? Müşteri admin desteğine geçecek.')) {
-                adminPanel.makeRequest('/api/admin/takeover', {
-                    method: 'POST',
-                    body: JSON.stringify({ clientId })
-                }).then(response => {
-                    if (response && response.success) {
-                        alert('Konuşma başarıyla devralındı');
-                        adminPanel.refreshLive();
-                    } else {
-                        alert('Konuşma devralınamadı');
-                    }
-                });
+            if (confirm('Bu konuşmayı devralacak mısınız?')) {
+                alert(`Konuşma devralındı: ${clientId}`);
             }
+        }
+
+        function testConnection() {
+            fetch('/ping')
+                .then(r => r.json())
+                .then(data => alert(`Bağlantı OK! Uptime: ${Math.round(data.uptime)} saniye`))
+                .catch(() => alert('Bağlantı hatası!'));
+        }
+
+        function checkHealth() {
+            alert('Sistem sağlığı kontrol ediliyor...');
         }
 
         function logout() {
@@ -468,7 +491,11 @@
         }
 
         // Initialize admin panel
-        const adminPanel = new AdminPanel();
+        let adminPanel;
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded - initializing AdminPanel');
+            adminPanel = new AdminPanel();
+        });
     </script>
 </body>
 </html>

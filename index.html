@@ -1,8 +1,38 @@
-isMobile() {
-                return window.innerWidth <= 768;
+class HayDayChat {
+            constructor() {
+                this.clientId = this.getOrCreateClientId();
+                this.isTyping = false;
+                this.messageHistory = [];
+                
+                // ✅ POLLING VARIABLES ADDED
+                this.pollingInterval = null;
+                this.lastPollTimestamp = Date.now();
+                
+                this.init();
             }
 
-            // Real-time polling for new messages
+            getOrCreateClientId() {
+                let clientId = localStorage.getItem('hd_client_id');
+                if (!clientId) {
+                    clientId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('hd_client_id', clientId);
+                }
+                return clientId;
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadHistory();
+                this.focusInput();
+                this.startPolling();
+            }
+
+            // ✅ FIXED: Added missing beforeUnload method
+            beforeUnload() {
+                this.stopPolling();
+            }
+
+            // ✅ Real-time polling for new messages
             startPolling() {
                 // Poll every 5 seconds for new messages
                 this.pollingInterval = setInterval(() => {
@@ -61,143 +91,6 @@ isMobile() {
                     // Request permission
                     Notification.requestPermission();
                 }
-            }
-
-            // Clean up on page unload
-            beforeUnload() {
-                this.stopPolling();
-            }
-        }
-
-        // Initialize chat when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const chat = new HayDayChat();
-            
-            // Request notification permission
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-            
-            // Clean up on page unload
-            window.addEventListener('beforeunload', () => {
-                chat.beforeUnload();
-            });
-            
-            // Handle visibility change for notifications
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    // Page became visible, mark as read
-                    chat.lastPollTimestamp = Date.now();
-                }
-            });
-        });<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HayDay Destek Chat</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="chat-popup-body">
-    <div class="chat-container">
-        <!-- Header -->
-        <div class="chat-header">
-            <div class="chat-header-info">
-                <div class="chat-avatar">🤖</div>
-                <div class="chat-title">
-                    <h3>HayDay Destek</h3>
-                    <span class="chat-status" id="chatStatus">Çevrimiçi</span>
-                </div>
-            </div>
-            <div class="chat-header-actions">
-                <button class="chat-search-btn" id="searchBtn">🔍</button>
-                <button class="chat-close-btn" id="closeBtn">✕</button>
-            </div>
-        </div>
-
-        <!-- Search Bar (Hidden by default) -->
-        <div class="chat-search" id="chatSearch" style="display: none;">
-            <input type="text" id="searchInput" placeholder="Mesajlarda ara..." class="search-input">
-            <button class="search-clear-btn" id="searchClear">✕</button>
-        </div>
-
-        <!-- Messages Area -->
-        <div class="chat-messages" id="chatMessages">
-            <div class="chat-welcome">
-                <div class="welcome-avatar">🤖</div>
-                <h4>HayDay Destek'e Hoş Geldiniz!</h4>
-                <p>Size nasıl yardımcı olabilirim? HayDay oyunu ve sitemizdeki hizmetler hakkında sorularınızı sorabilirsiniz.</p>
-            </div>
-        </div>
-
-        <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typingIndicator" style="display: none;">
-            <div class="typing-avatar">🤖</div>
-            <div class="typing-text">
-                <span id="typingRole">HayDay Bot</span> yazıyor...
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="chat-input-container">
-            <div class="chat-input-wrapper">
-                <textarea 
-                    id="messageInput" 
-                    placeholder="Mesajınızı yazın..." 
-                    class="chat-input"
-                    rows="1"
-                    maxlength="1000"
-                ></textarea>
-                <button id="sendButton" class="send-button" disabled>
-                    <span class="send-icon">📤</span>
-                </button>
-            </div>
-            <div class="chat-input-footer">
-                <span class="powered-by">HayDay Malzemeleri tarafından desteklenmektedir</span>
-                <span class="char-count" id="charCount">0/1000</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Connection Status -->
-    <div class="connection-status" id="connectionStatus" style="display: none;">
-        <span class="status-icon">⚠️</span>
-        <span class="status-text">Bağlantı kuruluyor...</span>
-    </div>
-
-    <script src="script.js"></script>
-    <script>
-        // Chat specific functionality
-        class HayDayChat {
-            constructor() {
-                this.clientId = this.getOrCreateClientId();
-                this.isTyping = false;
-                this.messageHistory = [];
-                this.init();
-            }
-
-            getOrCreateClientId() {
-                let clientId = localStorage.getItem('hd_client_id');
-                if (!clientId) {
-                    clientId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('hd_client_id', clientId);
-                }
-                return clientId;
-            }
-
-            init() {
-                this.setupEventListeners();
-                this.loadHistory();
-                this.focusInput();
-                this.startPolling();
             }
 
             setupEventListeners() {
@@ -466,29 +359,3 @@ isMobile() {
                 return window.innerWidth <= 768;
             }
         }
-
-        // Initialize chat when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const chat = new HayDayChat();
-            
-            // Request notification permission
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-            
-            // Clean up on page unload
-            window.addEventListener('beforeunload', () => {
-                chat.beforeUnload();
-            });
-            
-            // Handle visibility change for notifications
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    // Page became visible, mark as read
-                    chat.lastPollTimestamp = Date.now();
-                }
-            });
-        });
-    </script>
-</body>
-</html>

@@ -198,10 +198,10 @@
                 <div class="form-group">
                     <label for="telegramId">Telegram ID</label>
                     <input type="text" id="telegramId" name="telegramId" 
-                           placeholder="6476943853" required>
+                           value="6476943853" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="sendCodeBtn">
                     📨 Kod Gönder
                     <div class="loading" id="sendingLoader">⏳ Gönderiliyor...</div>
                 </button>
@@ -222,12 +222,12 @@
                            placeholder="123456" maxlength="6" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="verifyCodeBtn">
                     🔓 Giriş Yap
                     <div class="loading" id="verifyingLoader">⏳ Doğrulanıyor...</div>
                 </button>
 
-                <button type="button" class="btn btn-secondary" onclick="requestNewCode()">
+                <button type="button" class="btn btn-secondary" id="newCodeBtn">
                     🔄 Yeni Kod Gönder
                 </button>
             </form>
@@ -248,48 +248,88 @@
             }
 
             init() {
+                console.log('TelegramAuth initializing...');
+                
                 // Check if already logged in
                 if (localStorage.getItem('admin_token')) {
+                    console.log('Already logged in, redirecting...');
                     window.location.href = '/admin.html';
                     return;
                 }
 
                 // Setup form listeners
-                document.getElementById('requestCodeForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.requestCode();
-                });
+                this.setupEventListeners();
+                console.log('TelegramAuth initialized successfully');
+            }
 
-                document.getElementById('verifyCodeForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.verifyCode();
-                });
+            setupEventListeners() {
+                const requestForm = document.getElementById('requestCodeForm');
+                const verifyForm = document.getElementById('verifyCodeForm');
+                const newCodeBtn = document.getElementById('newCodeBtn');
+
+                if (requestForm) {
+                    requestForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        console.log('Request code form submitted');
+                        this.requestCode();
+                </script>
+</body>
+</html>
+                }
+
+                if (verifyForm) {
+                    verifyForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        console.log('Verify code form submitted');
+                        this.verifyCode();
+                    });
+                }
+
+                if (newCodeBtn) {
+                    newCodeBtn.addEventListener('click', () => {
+                        console.log('New code button clicked');
+                        this.requestNewCode();
+                    });
+                }
 
                 // Auto-format verification code input
-                document.getElementById('verificationCode').addEventListener('input', (e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                });
+                const verificationInput = document.getElementById('verificationCode');
+                if (verificationInput) {
+                    verificationInput.addEventListener('input', (e) => {
+                        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    });
+                }
+
+                console.log('Event listeners setup complete');
             }
 
             showError(message) {
+                console.log('Showing error:', message);
                 const errorDiv = document.getElementById('errorMessage');
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-                setTimeout(() => {
-                    errorDiv.style.display = 'none';
-                }, 5000);
+                if (errorDiv) {
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => {
+                        errorDiv.style.display = 'none';
+                    }, 5000);
+                }
             }
 
             showSuccess(message) {
+                console.log('Showing success:', message);
                 const successDiv = document.getElementById('successMessage');
-                successDiv.textContent = message;
-                successDiv.style.display = 'block';
-                setTimeout(() => {
-                    successDiv.style.display = 'none';
-                }, 3000);
+                if (successDiv) {
+                    successDiv.textContent = message;
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        successDiv.style.display = 'none';
+                    }, 3000);
+                }
             }
 
             switchToStep(step) {
+                console.log('Switching to step:', step);
+                
                 // Hide all steps
                 document.querySelectorAll('.step-content').forEach(content => {
                     content.classList.remove('active');
@@ -301,22 +341,43 @@
 
                 // Show target step
                 if (step === 1) {
-                    document.getElementById('requestCodeStep').classList.add('active');
-                    document.getElementById('step1').classList.add('active');
-                    document.getElementById('step1').classList.remove('inactive');
+                    const step1Content = document.getElementById('requestCodeStep');
+                    const step1Indicator = document.getElementById('step1');
+                    if (step1Content) step1Content.classList.add('active');
+                    if (step1Indicator) {
+                        step1Indicator.classList.add('active');
+                        step1Indicator.classList.remove('inactive');
+                    }
                 } else if (step === 2) {
-                    document.getElementById('verifyCodeStep').classList.add('active');
-                    document.getElementById('step2').classList.add('active');
-                    document.getElementById('step2').classList.remove('inactive');
-                    document.getElementById('step1').classList.add('active');
-                    document.getElementById('step1').classList.remove('inactive');
+                    const step2Content = document.getElementById('verifyCodeStep');
+                    const step2Indicator = document.getElementById('step2');
+                    const step1Indicator = document.getElementById('step1');
+                    
+                    if (step2Content) step2Content.classList.add('active');
+                    if (step2Indicator) {
+                        step2Indicator.classList.add('active');
+                        step2Indicator.classList.remove('inactive');
+                    }
+                    if (step1Indicator) {
+                        step1Indicator.classList.add('active');
+                        step1Indicator.classList.remove('inactive');
+                    }
+                    
+                    // Focus on verification code input
+                    setTimeout(() => {
+                        const verificationInput = document.getElementById('verificationCode');
+                        if (verificationInput) verificationInput.focus();
+                    }, 100);
                 }
 
                 this.currentStep = step;
             }
 
             async requestCode() {
-                const telegramId = document.getElementById('telegramId').value.trim();
+                const telegramIdInput = document.getElementById('telegramId');
+                const telegramId = telegramIdInput ? telegramIdInput.value.trim() : '';
+                
+                console.log('Requesting code for Telegram ID:', telegramId);
                 
                 if (!telegramId) {
                     this.showError('Telegram ID gereklidir');
@@ -331,12 +392,13 @@
                 this.telegramId = telegramId;
 
                 // Show loading
-                const submitBtn = document.querySelector('#requestCodeForm button[type="submit"]');
+                const submitBtn = document.getElementById('sendCodeBtn');
                 const loader = document.getElementById('sendingLoader');
-                submitBtn.disabled = true;
-                loader.style.display = 'inline';
+                if (submitBtn) submitBtn.disabled = true;
+                if (loader) loader.style.display = 'inline';
 
                 try {
+                    console.log('Making API request to /api/admin/request-code');
                     const response = await fetch('/api/admin/request-code', {
                         method: 'POST',
                         headers: {
@@ -348,14 +410,11 @@
                     });
 
                     const data = await response.json();
+                    console.log('API Response:', data);
 
                     if (response.ok && data.success) {
                         this.showSuccess('Doğrulama kodu Telegram\'a gönderildi');
                         this.switchToStep(2);
-                        // Focus on verification code input
-                        setTimeout(() => {
-                            document.getElementById('verificationCode').focus();
-                        }, 100);
                     } else {
                         this.showError(data.error || 'Kod gönderilemedi. Telegram ID\'nizi kontrol edin.');
                     }
@@ -364,13 +423,16 @@
                     this.showError('Bağlantı hatası. Lütfen tekrar deneyin.');
                 } finally {
                     // Hide loading
-                    submitBtn.disabled = false;
-                    loader.style.display = 'none';
+                    if (submitBtn) submitBtn.disabled = false;
+                    if (loader) loader.style.display = 'none';
                 }
             }
 
             async verifyCode() {
-                const code = document.getElementById('verificationCode').value.trim();
+                const codeInput = document.getElementById('verificationCode');
+                const code = codeInput ? codeInput.value.trim() : '';
+                
+                console.log('Verifying code:', code);
                 
                 if (!code) {
                     this.showError('Doğrulama kodu gereklidir');
@@ -383,12 +445,13 @@
                 }
 
                 // Show loading
-                const submitBtn = document.querySelector('#verifyCodeForm button[type="submit"]');
+                const submitBtn = document.getElementById('verifyCodeBtn');
                 const loader = document.getElementById('verifyingLoader');
-                submitBtn.disabled = true;
-                loader.style.display = 'inline';
+                if (submitBtn) submitBtn.disabled = true;
+                if (loader) loader.style.display = 'inline';
 
                 try {
+                    console.log('Making API request to /api/admin/verify-code');
                     const response = await fetch('/api/admin/verify-code', {
                         method: 'POST',
                         headers: {
@@ -401,6 +464,7 @@
                     });
 
                     const data = await response.json();
+                    console.log('Verify API Response:', data);
 
                     if (response.ok && data.success) {
                         // Save token and redirect
@@ -413,28 +477,43 @@
                     } else {
                         this.showError(data.error || 'Geçersiz veya süresi dolmuş kod');
                         // Clear the input
-                        document.getElementById('verificationCode').value = '';
-                        document.getElementById('verificationCode').focus();
+                        if (codeInput) {
+                            codeInput.value = '';
+                            codeInput.focus();
+                        }
                     }
                 } catch (error) {
                     console.error('Verify code error:', error);
                     this.showError('Bağlantı hatası. Lütfen tekrar deneyin.');
                 } finally {
                     // Hide loading
-                    submitBtn.disabled = false;
-                    loader.style.display = 'none';
+                    if (submitBtn) submitBtn.disabled = false;
+                    if (loader) loader.style.display = 'none';
+                }
+            }
+
+            requestNewCode() {
+                console.log('Requesting new code');
+                if (this.telegramId) {
+                    this.requestCode();
+                } else {
+                    this.switchToStep(1);
                 }
             }
         }
 
-        // Global functions
-        function requestNewCode() {
-            if (telegramAuth.telegramId) {
-                telegramAuth.requestCode();
-            } else {
-                telegramAuth.switchToStep(1);
-            }
-        }
+        // Global variable for debugging
+        let telegramAuth;
 
-        // Initialize
-        const telegramAuth = new TelegramAuth();
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded - Initializing TelegramAuth');
+            
+            try {
+                telegramAuth = new TelegramAuth();
+                window.telegramAuth = telegramAuth; // For debugging
+                console.log('TelegramAuth initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize TelegramAuth:', error);
+            }
+        });

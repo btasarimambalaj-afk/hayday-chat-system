@@ -132,6 +132,14 @@
             margin-top: 20px;
             display: inline-block;
         }
+        .logout-notice {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -140,6 +148,11 @@
             <div style="font-size: 48px;">🔐</div>
             <h1>Admin Girişi</h1>
             <p>HayDay Chat Yönetim Paneli</p>
+        </div>
+
+        <!-- Logout Notice -->
+        <div id="logoutNotice" class="logout-notice" style="display: none;">
+            ✅ Başarıyla çıkış yaptınız. Tekrar giriş yapabilirsiniz.
         </div>
 
         <div class="step-indicator">
@@ -189,6 +202,13 @@
         </div>
 
         <a href="/" class="back-link">← Chat'e Dön</a>
+        
+        <!-- Force logout link -->
+        <div style="margin-top: 20px;">
+            <button type="button" class="btn btn-secondary" id="forceLogoutBtn" style="font-size: 12px; padding: 8px 12px;">
+                🚪 Zorla Çıkış Yap
+            </button>
+        </div>
     </div>
 
     <script>
@@ -201,8 +221,22 @@
             init() {
                 console.log('TelegramAuth starting...');
                 
-                // Check if already logged in
-                if (localStorage.getItem('admin_token')) {
+                // Check for logout parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const isLogout = urlParams.get('logout') === 'true';
+                
+                if (isLogout) {
+                    // Force clear all tokens and show logout notice
+                    localStorage.removeItem('admin_token');
+                    sessionStorage.clear();
+                    document.getElementById('logoutNotice').style.display = 'block';
+                    console.log('Logout detected - tokens cleared');
+                }
+
+                // Check if already logged in (but not if logout=true)
+                const token = localStorage.getItem('admin_token');
+                if (token && !isLogout) {
+                    console.log('Token found, redirecting to admin...');
                     window.location.href = '/admin.html';
                     return;
                 }
@@ -214,6 +248,7 @@
                 document.getElementById('sendCodeBtn').onclick = () => this.requestCode();
                 document.getElementById('verifyCodeBtn').onclick = () => this.verifyCode();
                 document.getElementById('newCodeBtn').onclick = () => this.requestCode();
+                document.getElementById('forceLogoutBtn').onclick = () => this.forceLogout();
                 
                 // Auto-format verification code
                 document.getElementById('verificationCode').oninput = (e) => {
@@ -221,6 +256,29 @@
                 };
                 
                 console.log('Events setup complete');
+            }
+
+            forceLogout() {
+                console.log('Force logout triggered');
+                localStorage.removeItem('admin_token');
+                sessionStorage.clear();
+                
+                // Clear all possible storage
+                try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                } catch (e) {
+                    console.log('Storage clear error:', e);
+                }
+                
+                document.getElementById('logoutNotice').style.display = 'block';
+                
+                // Reset form to initial state
+                this.switchToStep(1);
+                document.getElementById('telegramId').value = '6476943853';
+                document.getElementById('verificationCode').value = '';
+                
+                this.showSuccess('Tüm oturum verileri temizlendi. Yeniden giriş yapabilirsiniz.');
             }
 
             showError(message) {

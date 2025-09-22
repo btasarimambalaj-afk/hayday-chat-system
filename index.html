@@ -83,7 +83,12 @@
 
     <script src="script.js"></script>
     <script>
-        // HayDay Chat System - Clean Version
+        // UUID Generation Function (simple version)
+        function generateUUID() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // HayDay Chat System
         class HayDayChat {
             constructor() {
                 this.clientId = this.getOrCreateClientId();
@@ -97,7 +102,7 @@
             getOrCreateClientId() {
                 let clientId = localStorage.getItem('hd_client_id');
                 if (!clientId) {
-                    clientId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    clientId = generateUUID();
                     localStorage.setItem('hd_client_id', clientId);
                 }
                 return clientId;
@@ -315,7 +320,6 @@
                 } else {
                     searchInput.value = '';
                     searchContainer.style.display = 'none';
-                    // Show all messages
                     document.querySelectorAll('.message').forEach(msg => {
                         msg.style.display = 'block';
                     });

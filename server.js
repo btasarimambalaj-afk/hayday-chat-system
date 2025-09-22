@@ -44,7 +44,18 @@ if (process.env.NODE_ENV === 'production') {
 const ADMIN_TELEGRAM_ID = process.env.ADMIN_TELEGRAM_ID;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow inline scripts
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
@@ -299,9 +310,9 @@ app.get('/ping', (req, res) => {
   });
 });
 
-// Chat endpoints
+// Chat endpoints - UUID validation relaxed for compatibility
 app.post('/api/chat/send', [
-  body('clientId').isUUID().withMessage('Invalid client ID'),
+  body('clientId').isLength({ min: 5, max: 50 }).withMessage('Invalid client ID format'),
   body('message').isLength({ min: 1, max: 1000 }).withMessage('Message must be 1-1000 characters')
 ], async (req, res) => {
   const errors = validationResult(req);

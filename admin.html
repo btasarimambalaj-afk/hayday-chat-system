@@ -238,6 +238,7 @@
                         <h4>Mevcut Sistem Durumu</h4>
                         <button class="btn" onclick="testConnection()">🔗 Bağlantı Test</button>
                         <button class="btn" onclick="checkHealth()">❤️ Sistem Sağlığı</button>
+                        <button class="btn" onclick="clearAllData()">🗑️ Cache Temizle</button>
                     </div>
                 </div>
             </div>
@@ -253,8 +254,10 @@
 
             init() {
                 console.log('AdminPanel initializing...');
+                console.log('Token:', this.token ? 'Found' : 'Not found');
                 
                 if (!this.token) {
+                    console.log('No token, redirecting to login');
                     window.location.href = '/login.html';
                     return;
                 }
@@ -263,11 +266,14 @@
                 
                 // Auto-refresh every 30 seconds
                 setInterval(() => {
-                    const activeTab = document.querySelector('.tab-content.active').id;
-                    if (activeTab === 'dashboard') {
-                        this.refreshDashboard();
-                    } else if (activeTab === 'live') {
-                        this.refreshLive();
+                    const activeTab = document.querySelector('.tab-content.active');
+                    if (activeTab) {
+                        const tabId = activeTab.id;
+                        if (tabId === 'dashboard') {
+                            this.refreshDashboard();
+                        } else if (tabId === 'live') {
+                            this.refreshLive();
+                        }
                     }
                 }, 30000);
                 
@@ -276,6 +282,7 @@
 
             async makeRequest(endpoint, options = {}) {
                 try {
+                    console.log('Making request to:', endpoint);
                     const response = await fetch(endpoint, {
                         ...options,
                         headers: {
@@ -285,13 +292,19 @@
                         }
                     });
 
+                    console.log('Response status:', response.status);
+
                     if (response.status === 401) {
+                        console.log('Unauthorized, clearing token and redirecting');
                         localStorage.removeItem('admin_token');
-                        window.location.href = '/login.html';
+                        sessionStorage.clear();
+                        window.location.href = '/login.html?logout=true';
                         return null;
                     }
 
-                    return await response.json();
+                    const data = await response.json();
+                    console.log('Response data:', data);
+                    return data;
                 } catch (error) {
                     console.error('API Request failed:', error);
                     return null;
@@ -319,7 +332,7 @@
                     this.renderRecentActivity(data.activeChats || []);
                 } else {
                     document.getElementById('recentActivity').innerHTML = 
-                        '<div class="error">Dashboard verisi yüklenemedi</div>';
+                        '<div class="error">Dashboard verisi yüklenemedi - API bağlantısını kontrol edin</div>';
                 }
             }
 
@@ -429,6 +442,8 @@
 
         // Global functions
         function showTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -438,23 +453,30 @@
             });
 
             // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                event.target.classList.add('active');
 
-            // Load data if needed
-            if (tabName === 'live') {
-                adminPanel.refreshLive();
-            } else if (tabName === 'history') {
-                refreshHistory();
+                // Load data if needed
+                if (tabName === 'live' && window.adminPanel) {
+                    adminPanel.refreshLive();
+                } else if (tabName === 'history') {
+                    refreshHistory();
+                }
             }
         }
 
         function refreshDashboard() {
-            adminPanel.refreshDashboard();
+            if (window.adminPanel) {
+                adminPanel.refreshDashboard();
+            }
         }
 
         function refreshLive() {
-            adminPanel.refreshLive();
+            if (window.adminPanel) {
+                adminPanel.refreshLive();
+            }
         }
 
         function refreshHistory() {
@@ -463,30 +485,64 @@
         }
 
         function viewConversation(clientId) {
-            alert(`Konuşma görüntüleme: ${clientId}`);
+            alert(`Konuşma görüntüleme: ${clientId}\n\nBu özellik v2'de gelecek.`);
         }
 
         function takeoverConversation(clientId) {
             if (confirm('Bu konuşmayı devralacak mısınız?')) {
-                alert(`Konuşma devralındı: ${clientId}`);
+                alert(`Konuşma devralındı: ${clientId}\n\nBu özellik v2'de gelecek.`);
             }
         }
 
         function testConnection() {
+            console.log('Testing connection...');
             fetch('/ping')
                 .then(r => r.json())
-                .then(data => alert(`Bağlantı OK! Uptime: ${Math.round(data.uptime)} saniye`))
-                .catch(() => alert('Bağlantı hatası!'));
+                .then(data => {
+                    alert(`✅ Bağlantı OK!\n\nUptime: ${Math.round(data.uptime)} saniye\nMemory: ${Math.round(data.memory.rss / 1024 / 1024)}MB`);
+                })
+                .catch((error) => {
+                    console.error('Connection test failed:', error);
+                    alert('❌ Bağlantı hatası!');
+                });
         }
 
         function checkHealth() {
-            alert('Sistem sağlığı kontrol ediliyor...');
+            console.log('Checking system health...');
+            Promise.all([
+                fetch('/ping').then(r => r.json()),
+                fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                }).then(r => r.json())
+            ])
+            .then(([ping, dashboard]) => {
+                alert(`✅ Sistem Sağlığı\n\nServer: OK (${Math.round(ping.uptime)}s)\nAPI: OK\nMemory: ${Math.round(ping.memory.rss / 1024 / 1024)}MB\nBugün: ${dashboard.stats.today.total || 0} mesaj`);
+            })
+            .catch(() => {
+                alert('❌ Sistem sağlığı kontrolü başarısız!');
+            });
+        }
+
+        function clearAllData() {
+            if (confirm('Tüm cache ve oturum verilerini temizlemek istediğinizi emin misiniz?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('✅ Tüm veriler temizlendi. Sayfa yenilenecek.');
+                window.location.reload();
+            }
         }
 
         function logout() {
+            console.log('Logout requested');
             if (confirm('Çıkış yapmak istediğinizi emin misiniz?')) {
+                console.log('Logout confirmed');
                 localStorage.removeItem('admin_token');
-                window.location.href = '/login.html';
+                sessionStorage.clear();
+                console.log('Redirecting to login with logout=true');
+                window.location.href = '/login.html?logout=true';
             }
         }
 
@@ -494,7 +550,12 @@
         let adminPanel;
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded - initializing AdminPanel');
-            adminPanel = new AdminPanel();
+            try {
+                adminPanel = new AdminPanel();
+                window.adminPanel = adminPanel; // For debugging
+            } catch (error) {
+                console.error('Failed to initialize AdminPanel:', error);
+            }
         });
     </script>
 </body>

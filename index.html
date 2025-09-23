@@ -3,60 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="HayDay Destek - Canlı Chat">
-    <title>HayDay Destek</title>
+    <title>HayDay Destek Chat</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="chat-popup-body">
-    <!-- Connection Status -->
-    <div id="connectionStatus" class="connection-status" style="display: none;">
-        🔄 Bağlantı kuruluyor...
-    </div>
-
+<body>
     <!-- Chat Container -->
-    <div class="chat-container">
+    <div class="chat-container" id="chatContainer">
         
         <!-- Chat Header -->
         <div class="chat-header">
-            <div class="chat-header-info">
-                <div class="chat-avatar">
-                    🌾
-                </div>
-
+            <div class="chat-header-content">
                 <div class="chat-title">
-                    <h3>HayDay Destek</h3>
-                    <div class="chat-status">Çevrimiçi</div>
+                    <span class="chat-avatar">🌾</span>
+                    <div>
+                        <h3>HayDay Destek</h3>
+                        <span class="chat-status online" id="connectionStatus">Çevrimiçi</span>
+                    </div>
                 </div>
-
+                
+                <div class="chat-actions">
+                    <button class="action-btn" id="searchBtn" title="Ara">🔍</button>
+                    <button class="action-btn" id="closeBtn" title="Kapat">✕</button>
+                </div>
             </div>
-
-            <div class="chat-header-actions">
-                <button class="chat-search-btn" id="searchBtn" aria-label="Arama">
-                    🔍
-                </button>
-                <button class="chat-close-btn" id="closeBtn" aria-label="Kapat">
-                    ✕
-                </button>
+            
+            <!-- Search Bar -->
+            <div class="search-container" id="searchContainer" style="display: none;">
+                <input type="text" id="searchInput" placeholder="Mesajlarda ara..." class="search-input">
+                <button class="search-clear-btn" id="searchClear">✕</button>
             </div>
-
         </div>
-
-        <!-- Search Bar -->
-        <div class="chat-search" id="searchBar" style="display: none;">
-            <input type="text" class="search-input" id="searchInput" placeholder="Mesajlarda ara..." maxlength="100">
-            <button class="search-clear-btn" id="searchClear">✕</button>
-        </div>
-
 
         <!-- Quick Actions -->
         <div class="quick-actions" id="quickActions">
-            <button class="quick-action-btn" data-message="Merhaba">
-                👋 Merhaba
+            <button class="quick-action-btn" data-message="Altın transfer nasıl yapılır?">
+                🏆 Altın Transfer
             </button>
-            <button class="quick-action-btn" data-message="Altın transferi hakkında bilgi">
-                💰 Altın Transferi
-            </button>
-            <button class="quick-action-btn" data-message="Ürün fiyatları nedir?">
+            <button class="quick-action-btn" data-message="Fiyat listesi göster">
                 💸 Fiyat Listesi
             </button>
             <button class="quick-action-btn" data-message="Depolama hesaplama">
@@ -64,31 +47,19 @@
             </button>
         </div>
 
-
         <!-- Messages Area -->
         <div class="chat-messages" id="chatMessages">
-        
             <!-- Welcome Message -->
             <div class="chat-welcome" id="welcomeMessage">
-            
-                <div class="welcome-avatar">
-                    🌾
-                </div>
-
+                <div class="welcome-avatar">🌾</div>
                 <h4>HayDay Destek'e Hoş Geldiniz!</h4>
-
                 <p>Size nasıl yardımcı olabilirim? HayDay oyunu ve sitemizdeki hizmetler hakkında sorularınızı sorabilirsiniz.</p>
-
             </div>
-
         </div>
 
         <!-- Typing Indicator -->
         <div class="typing-indicator" id="typingIndicator" style="display: none;">
-            <div class="typing-avatar">
-                🤖
-            </div>
-
+            <div class="typing-avatar">🤖</div>
             <div class="typing-text">
                 HayDay Bot yazıyor...
                 <div class="typing-dots">
@@ -97,13 +68,10 @@
                     <span></span>
                 </div>
             </div>
-
         </div>
-
 
         <!-- Input Area -->
         <div class="chat-input-container">
-        
             <div class="chat-input-wrapper">
                 <textarea 
                     class="chat-input" 
@@ -122,55 +90,40 @@
                 <span class="powered-by">HayDay Malzemeleri tarafından desteklenmektedir</span>
                 <span class="char-count" id="charCount">0/1000</span>
             </div>
-
         </div>
     </div>
 
     <!-- Footer Actions -->
     <div class="chat-footer-actions">
         <a href="login.html" class="footer-link" id="adminLink">
-            👑👑👑
-            Admin
+            👑👑👑 Admin
         </a>
     </div>
 
     <!-- JavaScript -->
     <script src="script.js"></script>
     <script>
-        /**
-         * 🌾 HayDay Chat System - Main Chat Interface
-         */
-
+        // HayDay Chat Class
         class HayDayChat {
             constructor() {
-                this.clientId = this.getOrCreateClientId();
-                this.messages = [];
+                this.clientId = this.generateClientId();
+                this.messageQueue = [];
+                this.isProcessing = false;
                 this.lastMessageTimestamp = 0;
-                this.isConnected = false;
                 this.pollInterval = null;
-                this.searchMode = false;
-                this.typingTimeout = null;
                 
-                this.init();
-            }
-
-            getOrCreateClientId() {
-                let clientId = localStorage.getItem('hayday_client_id');
-                if (!clientId) {
-                    clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    localStorage.setItem('hayday_client_id', clientId);
-                }
-                return clientId;
-            }
-
-            init() {
-                console.log('🌾 HayDay Chat initializing...', this.clientId);
-                
+                this.initializeChat();
                 this.bindEvents();
-                this.setupAutoResize();
-                this.loadHistory();
                 this.startPolling();
-                this.showConnectionStatus('connecting');
+            }
+
+            generateClientId() {
+                return 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            initializeChat() {
+                console.log('🌾 HayDay Chat başlatılıyor...');
+                this.showConnectionStatus('online');
                 
                 // Show quick actions initially
                 document.getElementById('quickActions').classList.add('show');
@@ -208,39 +161,19 @@
                 elements.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
                 elements.searchClear.addEventListener('click', () => this.clearSearch());
 
-                // Close button
-                elements.closeBtn.addEventListener('click', () => {
-                    if (window.parent && window.parent !== window) {
-                        window.parent.postMessage('close-chat', '*');
-                    }
-                });
-
-                // Quick actions
+                // Quick action buttons
                 document.querySelectorAll('.quick-action-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const message = btn.dataset.message;
-                        elements.messageInput.value = message;
+                    btn.addEventListener('click', (e) => {
+                        const message = e.target.getAttribute('data-message');
+                        document.getElementById('messageInput').value = message;
                         this.handleInputChange(message);
-                        elements.messageInput.focus();
+                        this.sendMessage();
                     });
                 });
 
-                // Escape key handling
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        if (this.searchMode) {
-                            this.toggleSearch();
-                        }
-                    }
-                });
-            }
-
-            setupAutoResize() {
-                const messageInput = document.getElementById('messageInput');
-                
-                messageInput.addEventListener('input', () => {
-                    messageInput.style.height = 'auto';
-                    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+                // Close chat
+                elements.closeBtn.addEventListener('click', () => {
+                    document.getElementById('chatContainer').style.display = 'none';
                 });
             }
 
@@ -248,88 +181,85 @@
                 const sendButton = document.getElementById('sendButton');
                 const charCount = document.getElementById('charCount');
                 
-                // Update character count
+                sendButton.disabled = !value.trim();
                 charCount.textContent = `${value.length}/1000`;
                 
-                // Enable/disable send button
-                sendButton.disabled = !value.trim() || value.length > 1000;
-                
-                // Update button style
-                if (value.trim() && value.length <= 1000) {
-                    sendButton.style.background = '#4CAF50';
-                } else {
-                    sendButton.style.background = '#757575';
-                }
+                // Auto-resize textarea
+                const textarea = document.getElementById('messageInput');
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
             }
 
             async sendMessage() {
-                const messageInput = document.getElementById('messageInput');
-                const message = messageInput.value.trim();
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
                 
-                if (!message || message.length > 1000) return;
-
-                // Clear input
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
+                if (!message || this.isProcessing) return;
+                
+                this.isProcessing = true;
+                input.value = '';
                 this.handleInputChange('');
-
-                // Add user message to UI
+                
+                // Add user message immediately
                 this.addMessage({
-                    timestamp: Date.now(),
-                    clientId: this.clientId,
                     role: 'user',
-                    content: message
+                    content: message,
+                    timestamp: Date.now(),
+                    clientId: this.clientId
                 });
-
+                
                 // Show typing indicator
                 this.showTyping();
-
+                
                 try {
                     const response = await fetch('/api/chat/send', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            clientId: this.clientId,
-                            message: message
+                            message: message,
+                            clientId: this.clientId
                         })
                     });
-
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
                     const data = await response.json();
                     
                     // Hide typing indicator
                     this.hideTyping();
-
-                    if (response.ok) {
-                        // Add bot response
+                    
+                    // Add bot response
+                    if (data.response) {
                         this.addMessage({
-                            timestamp: data.timestamp || Date.now(),
+                            role: 'assistant',
+                            content: data.response,
+                            timestamp: Date.now(),
                             clientId: this.clientId,
-                            role: data.role || 'bot',
-                            content: data.reply,
-                            confidence: data.confidence
+                            source: data.source || 'chatbot'
                         });
-
-                        this.showConnectionStatus('connected');
-                    } else {
-                        throw new Error(data.error || 'Mesaj gönderilemedi');
                     }
-
+                    
+                    this.showConnectionStatus('online');
+                    
                 } catch (error) {
                     console.error('Send message error:', error);
                     this.hideTyping();
                     
-                    // Show error message
                     this.addMessage({
+                        role: 'assistant',
+                        content: 'Üzgünüm, bir hata oluştu. Lütfen Sorular & İletişim sayfamızdan bize ulaşın.',
                         timestamp: Date.now(),
-                        clientId: this.clientId,
-                        role: 'system',
-                        content: 'Üzgünüm, bir hata oluştu. Lütfen Sorular & İletişim sayfamızdan bize ulaşın.'
+                        clientId: this.clientId
                     });
 
                     this.showConnectionStatus('error');
                 }
+                
+                this.isProcessing = false;
             }
 
             addMessage(message) {
@@ -359,126 +289,87 @@
                             ${avatar}
                         </div>
                         <div class="message-info">
-                            <span class="message-sender">${this.getRoleName(message.role)}</span>
-                            <span class="message-badge badge-${message.role}">${badge}</span>
+                            <span class="message-role">${badge}</span>
                             <span class="message-time">${time}</span>
                         </div>
                     </div>
-                    <div class="message-content">
-                        ${this.formatMessageContent(message.content)}
-                    </div>
+                    <div class="message-content">${this.formatMessageContent(message.content)}</div>
                 `;
 
                 messagesContainer.appendChild(messageEl);
                 this.scrollToBottom();
-
-                // Store message
-                this.messages.push(message);
-                this.lastMessageTimestamp = Math.max(this.lastMessageTimestamp, message.timestamp);
-
-                // Store in localStorage
-                localStorage.setItem('hayday_messages', JSON.stringify(this.messages.slice(-50))); // Keep last 50 messages
-            }
-
-            formatMessageContent(content) {
-                // Sanitize and format content
-                let formatted = HayDayChat.Utils.sanitizeHtml(content);
-                formatted = HayDayChat.Utils.linkify(formatted);
-                formatted = HayDayChat.Utils.emojify(formatted);
-                return formatted;
             }
 
             getRoleAvatar(role) {
                 const avatars = {
-                    user: '👤',
-                    bot: '🤖',
-                    chatbot: '🤖',
-                    ai: '🧠',
-                    admin: '👑',
-                    system: '⚙️'
+                    'user': '👤',
+                    'assistant': '🤖',
+                    'admin': '👑'
                 };
-                return avatars[role] || '💬';
+                return avatars[role] || '❓';
             }
 
             getRoleBadge(role) {
                 const badges = {
-                    user: 'Sen',
-                    bot: 'Bot',
-                    chatbot: 'Bot',
-                    ai: 'AI',
-                    admin: 'Admin',
-                    system: 'Sistem'
+                    'user': 'Siz',
+                    'assistant': 'HayDay Bot',
+                    'admin': 'Admin'
                 };
-                return badges[role] || 'Bot';
-            }
-
-            getRoleName(role) {
-                const names = {
-                    user: 'Sen',
-                    bot: 'HayDay Bot',
-                    chatbot: 'HayDay Bot',
-                    ai: 'HayDay AI',
-                    admin: 'HayDay Admin',
-                    system: 'Sistem'
-                };
-                return names[role] || 'HayDay Bot';
+                return badges[role] || 'Bilinmeyen';
             }
 
             getRoleColor(role) {
                 const colors = {
-                    user: '#757575',
-                    bot: '#4CAF50',
-                    chatbot: '#4CAF50',
-                    ai: '#9C27B0',
-                    admin: '#1B5E20',
-                    system: '#FF9800'
+                    'user': '#007bff',
+                    'assistant': '#28a745',
+                    'admin': '#ffc107'
                 };
-                return colors[role] || '#4CAF50';
+                return colors[role] || '#6c757d';
+            }
+
+            formatMessageContent(content) {
+                return content
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>');
             }
 
             showTyping() {
-                const typingIndicator = document.getElementById('typingIndicator');
-                typingIndicator.style.display = 'flex';
+                document.getElementById('typingIndicator').style.display = 'block';
                 this.scrollToBottom();
             }
 
             hideTyping() {
-                const typingIndicator = document.getElementById('typingIndicator');
-                typingIndicator.style.display = 'none';
+                document.getElementById('typingIndicator').style.display = 'none';
             }
 
             scrollToBottom() {
                 const messagesContainer = document.getElementById('chatMessages');
-                HayDayChat.Animations.scrollTo(messagesContainer);
+                setTimeout(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 100);
             }
 
-            async loadHistory() {
-                try {
-                    // Load from localStorage first
-                    const savedMessages = localStorage.getItem('hayday_messages');
-                    if (savedMessages) {
-                        const messages = JSON.parse(savedMessages);
-                        messages.forEach(message => this.addMessage(message));
-                    }
-
-                    // Load from server
-                    const response = await fetch(`/api/chat/history/${this.clientId}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        // Process server history if needed
-                    }
-                } catch (error) {
-                    console.error('Load history error:', error);
-                }
+            showConnectionStatus(status) {
+                const statusEl = document.getElementById('connectionStatus');
+                const statusTexts = {
+                    'online': 'Çevrimiçi',
+                    'connecting': 'Bağlanıyor...',
+                    'error': 'Bağlantı Hatası'
+                };
+                
+                statusEl.textContent = statusTexts[status] || status;
+                statusEl.className = `chat-status ${status}`;
             }
 
             startPolling() {
                 this.pollInterval = setInterval(() => {
-                    this.pollNewMessages();
-                }, 5000); // Poll every 5 seconds
+                    this.checkForNewMessages();
+                }, 3000); // Poll every 3 seconds
             }
 
-            async pollNewMessages() {
+            async checkForNewMessages() {
                 try {
                     const response = await fetch(`/api/chat/poll/${this.clientId}?after=${this.lastMessageTimestamp}`);
                     
@@ -487,56 +378,28 @@
                         
                         if (data.newMessages && data.newMessages.length > 0) {
                             data.newMessages.forEach(message => {
-                                // Only add messages that aren't from this user
-                                if (message.role !== 'user') {
+                                if (message.role !== 'user') { // Don't duplicate user messages
                                     this.addMessage(message);
                                 }
                             });
+                            
+                            this.lastMessageTimestamp = data.lastTimestamp;
                         }
-
-                        this.lastMessageTimestamp = data.lastTimestamp || this.lastMessageTimestamp;
-                        this.showConnectionStatus('connected');
-                    } else {
-                        this.showConnectionStatus('error');
                     }
                 } catch (error) {
                     console.error('Polling error:', error);
-                    this.showConnectionStatus('error');
                 }
-            }
-
-            showConnectionStatus(status) {
-                const statusEl = document.getElementById('connectionStatus');
-                const messages = {
-                    connecting: '🔄 Bağlantı kuruluyor...',
-                    connected: '✅ Bağlandı',
-                    error: '❌ Bağlantı hatası'
-                };
-
-                statusEl.textContent = messages[status];
-                statusEl.className = `connection-status ${status}`;
-                statusEl.style.display = 'block';
-
-                if (status === 'connected') {
-                    setTimeout(() => {
-                        statusEl.style.display = 'none';
-                    }, 2000);
-                }
-
-                this.isConnected = status === 'connected';
             }
 
             toggleSearch() {
-                const searchBar = document.getElementById('searchBar');
+                const searchContainer = document.getElementById('searchContainer');
                 const searchInput = document.getElementById('searchInput');
                 
-                this.searchMode = !this.searchMode;
-                
-                if (this.searchMode) {
-                    searchBar.style.display = 'flex';
+                if (searchContainer.style.display === 'none') {
+                    searchContainer.style.display = 'block';
                     searchInput.focus();
                 } else {
-                    searchBar.style.display = 'none';
+                    searchContainer.style.display = 'none';
                     this.clearSearch();
                 }
             }
@@ -566,6 +429,28 @@
                 this.handleSearch('');
             }
         }
+
+        // Utility functions
+        HayDayChat.Utils = {
+            formatTime: (timestamp) => {
+                return new Date(timestamp).toLocaleTimeString('tr-TR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+        };
+
+        // Search functions
+        HayDayChat.Search = {
+            fuzzyMatch: (text, query) => {
+                return text.toLowerCase().includes(query.toLowerCase());
+            },
+            
+            highlight: (text, query) => {
+                const regex = new RegExp(`(${query})`, 'gi');
+                return text.replace(regex, '<mark>$1</mark>');
+            }
+        };
 
         // Initialize chat when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {

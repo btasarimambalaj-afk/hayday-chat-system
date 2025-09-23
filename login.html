@@ -499,7 +499,8 @@
                 btn.innerHTML = '<span class="loading-spinner"></span> Kod gönderiliyor...';
 
                 try {
-                    const response = await fetch('/api/admin/request-code', {
+                    // ✅ DÜZELTME: Doğru endpoint kullanımı
+                    const response = await fetch('/api/auth/request-code', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -555,7 +556,8 @@
                 btn.innerHTML = '<span class="loading-spinner"></span> Giriş yapılıyor...';
 
                 try {
-                    const response = await fetch('/api/admin/verify-code', {
+                    // ✅ DÜZELTME: Doğru endpoint kullanımı
+                    const response = await fetch('/api/auth/verify-code', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

@@ -1,5 +1,5 @@
 /**
- * 🔧 HayDay Chat System - Shared Utilities
+ * 🔧 HayDay Chat System - Shared Utilities (DÜZELTILMIŞ)
  * Common functions used across the application
  */
 
@@ -9,7 +9,7 @@ window.HayDayChat = window.HayDayChat || {};
 /**
  * 🛠️ Utility Functions
  */
-const Utils = {
+HayDayChat.Utils = {
   // Generate unique ID
   generateId: (prefix = 'id') => {
     return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -17,6 +17,7 @@ const Utils = {
 
   // Format timestamp to readable time
   formatTime: (timestamp) => {
+    if (!timestamp) return '';
     const date = new Date(timestamp);
     return date.toLocaleTimeString('tr-TR', { 
       hour: '2-digit', 
@@ -26,6 +27,7 @@ const Utils = {
 
   // Format date to readable format
   formatDate: (timestamp) => {
+    if (!timestamp) return '';
     const date = new Date(timestamp);
     const today = new Date();
     const yesterday = new Date(today);
@@ -60,8 +62,7 @@ const Utils = {
   // Throttle function
   throttle: (func, limit) => {
     let inThrottle;
-    return function() {
-      const args = arguments;
+    return function(...args) {
       const context = this;
       if (!inThrottle) {
         func.apply(context, args);
@@ -83,6 +84,7 @@ const Utils = {
 
   // Sanitize HTML to prevent XSS
   sanitizeHtml: (str) => {
+    if (!str) return '';
     const temp = document.createElement('div');
     temp.textContent = str;
     return temp.innerHTML;
@@ -90,12 +92,14 @@ const Utils = {
 
   // Convert URLs to clickable links
   linkify: (text) => {
+    if (!text) return '';
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
   },
 
   // Simple emoji conversion
   emojify: (text) => {
+    if (!text) return '';
     const emojiMap = {
       ':)': '😊',
       ':-)': '😊',
@@ -170,29 +174,32 @@ const Utils = {
       font-weight: 500;
       max-width: 300px;
       word-wrap: break-word;
-      animation: slideIn 0.3s ease;
+      animation: slideInToast 0.3s ease;
     `;
 
-    // Add slide-in animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
+    // Add slide-in animation (only if not exists)
+    if (!document.getElementById('toast-styles')) {
+      const style = document.createElement('style');
+      style.id = 'toast-styles';
+      style.textContent = `
+        @keyframes slideInToast {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutToast {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     toast.textContent = message;
     document.body.appendChild(toast);
 
     // Auto remove
     setTimeout(() => {
-      toast.style.animation = 'slideOut 0.3s ease';
+      toast.style.animation = 'slideOutToast 0.3s ease';
       setTimeout(() => {
         if (toast.parentNode) {
           toast.remove();
@@ -207,9 +214,10 @@ const Utils = {
 /**
  * 🎨 Animation Helpers
  */
-const Animations = {
+HayDayChat.Animations = {
   // Smooth scroll to element
   scrollTo: (element, duration = 300) => {
+    if (!element) return;
     const start = element.scrollTop;
     const target = element.scrollHeight - element.clientHeight;
     const change = target - start;
@@ -234,6 +242,7 @@ const Animations = {
 
   // Fade in element
   fadeIn: (element, duration = 300) => {
+    if (!element) return;
     element.style.opacity = '0';
     element.style.display = 'block';
     
@@ -254,6 +263,7 @@ const Animations = {
 
   // Fade out element
   fadeOut: (element, duration = 300) => {
+    if (!element) return;
     let start = null;
     function animate(timestamp) {
       if (!start) start = timestamp;
@@ -273,6 +283,7 @@ const Animations = {
 
   // Bounce animation
   bounce: (element) => {
+    if (!element) return;
     element.style.animation = 'bounce 0.6s ease';
     setTimeout(() => {
       element.style.animation = '';
@@ -283,13 +294,13 @@ const Animations = {
 /**
  * 🔄 API Helper Functions
  */
-const API = {
+HayDayChat.API = {
   // Base API URL
   baseURL: window.location.origin,
 
   // Generic fetch wrapper
   request: async (endpoint, options = {}) => {
-    const url = `${API.baseURL}${endpoint}`;
+    const url = `${HayDayChat.API.baseURL}${endpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -300,10 +311,18 @@ const API = {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Handle non-JSON responses
+      let data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = { message: await response.text() };
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || `HTTP ${response.status}`);
+        throw new Error(data.error || data.message || `HTTP ${response.status}`);
       }
 
       return data;
@@ -315,12 +334,12 @@ const API = {
 
   // GET request
   get: (endpoint, headers = {}) => {
-    return API.request(endpoint, { method: 'GET', headers });
+    return HayDayChat.API.request(endpoint, { method: 'GET', headers });
   },
 
   // POST request
   post: (endpoint, data = {}, headers = {}) => {
-    return API.request(endpoint, {
+    return HayDayChat.API.request(endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify(data)
@@ -330,8 +349,8 @@ const API = {
   // Health check
   ping: async () => {
     try {
-      const response = await API.get('/ping');
-      return response.ok;
+      const response = await HayDayChat.API.get('/ping');
+      return response && response.ok;
     } catch {
       return false;
     }
@@ -341,7 +360,7 @@ const API = {
 /**
  * 💾 Storage Helpers
  */
-const Storage = {
+HayDayChat.Storage = {
   // Get from localStorage with fallback
   get: (key, defaultValue = null) => {
     try {
@@ -386,28 +405,34 @@ const Storage = {
 /**
  * 🎯 Event Management
  */
-const EventBus = {
+HayDayChat.EventBus = {
   events: {},
 
   // Subscribe to event
   on: (event, callback) => {
-    if (!EventBus.events[event]) {
-      EventBus.events[event] = [];
+    if (!HayDayChat.EventBus.events[event]) {
+      HayDayChat.EventBus.events[event] = [];
     }
-    EventBus.events[event].push(callback);
+    HayDayChat.EventBus.events[event].push(callback);
   },
 
   // Unsubscribe from event
   off: (event, callback) => {
-    if (EventBus.events[event]) {
-      EventBus.events[event] = EventBus.events[event].filter(cb => cb !== callback);
+    if (HayDayChat.EventBus.events[event]) {
+      HayDayChat.EventBus.events[event] = HayDayChat.EventBus.events[event].filter(cb => cb !== callback);
     }
   },
 
   // Emit event
   emit: (event, data) => {
-    if (EventBus.events[event]) {
-      EventBus.events[event].forEach(callback => callback(data));
+    if (HayDayChat.EventBus.events[event]) {
+      HayDayChat.EventBus.events[event].forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error('Event callback error:', error);
+        }
+      });
     }
   }
 };
@@ -415,15 +440,17 @@ const EventBus = {
 /**
  * 🔧 Form Validation
  */
-const Validator = {
+HayDayChat.Validator = {
   // Validate email
   email: (email) => {
+    if (!email) return false;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   },
 
   // Validate phone (Turkish format)
   phone: (phone) => {
+    if (!phone) return false;
     const regex = /^(\+90|0)?[1-9][0-9]{9}$/;
     return regex.test(phone.replace(/\s/g, ''));
   },
@@ -452,12 +479,12 @@ const Validator = {
 /**
  * 🎮 Keyboard Shortcuts
  */
-const Shortcuts = {
+HayDayChat.Shortcuts = {
   handlers: {},
 
   // Register shortcut
   register: (key, callback, description = '') => {
-    Shortcuts.handlers[key] = { callback, description };
+    HayDayChat.Shortcuts.handlers[key] = { callback, description };
   },
 
   // Handle keydown event
@@ -473,25 +500,25 @@ const Shortcuts = {
     
     const keyString = key.join('+');
     
-    if (Shortcuts.handlers[keyString]) {
+    if (HayDayChat.Shortcuts.handlers[keyString]) {
       event.preventDefault();
-      Shortcuts.handlers[keyString].callback(event);
+      HayDayChat.Shortcuts.handlers[keyString].callback(event);
     }
   },
 
   // Initialize shortcuts
   init: () => {
-    document.addEventListener('keydown', Shortcuts.handleKeydown);
+    document.addEventListener('keydown', HayDayChat.Shortcuts.handleKeydown);
   }
 };
 
 /**
  * 🔍 Search Utilities
  */
-const Search = {
+HayDayChat.Search = {
   // Highlight search terms in text
   highlight: (text, searchTerm) => {
-    if (!searchTerm) return text;
+    if (!searchTerm || !text) return text;
     
     const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     return text.replace(regex, '<mark>$1</mark>');
@@ -500,10 +527,15 @@ const Search = {
   // Simple fuzzy search
   fuzzyMatch: (text, searchTerm) => {
     if (!searchTerm) return true;
+    if (!text) return false;
     
     const textLower = text.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
     
+    // Simple contains check first
+    if (textLower.includes(searchLower)) return true;
+    
+    // Fuzzy matching
     let textIndex = 0;
     let searchIndex = 0;
     
@@ -521,45 +553,32 @@ const Search = {
 /**
  * 🚀 Performance Monitoring
  */
-const Performance = {
+HayDayChat.Performance = {
   marks: {},
 
   // Start performance mark
   mark: (name) => {
-    Performance.marks[name] = performance.now();
+    HayDayChat.Performance.marks[name] = performance.now();
   },
 
   // Measure performance
   measure: (name) => {
-    if (Performance.marks[name]) {
-      const duration = performance.now() - Performance.marks[name];
+    if (HayDayChat.Performance.marks[name]) {
+      const duration = performance.now() - HayDayChat.Performance.marks[name];
       console.log(`⏱️ ${name}: ${duration.toFixed(2)}ms`);
-      delete Performance.marks[name];
+      delete HayDayChat.Performance.marks[name];
       return duration;
     }
     return 0;
   }
 };
 
-// Export utilities to global namespace
-Object.assign(window.HayDayChat, {
-  Utils,
-  Animations,
-  API,
-  Storage,
-  EventBus,
-  Validator,
-  Shortcuts,
-  Search,
-  Performance
-});
-
 // Initialize shortcuts on load
 document.addEventListener('DOMContentLoaded', () => {
-  Shortcuts.init();
+  HayDayChat.Shortcuts.init();
   
   // Register common shortcuts
-  Shortcuts.register('escape', () => {
+  HayDayChat.Shortcuts.register('escape', () => {
     // Close modals, clear search, etc.
     const searchInput = document.querySelector('.search-input');
     if (searchInput && searchInput.value) {
@@ -573,17 +592,23 @@ document.addEventListener('DOMContentLoaded', () => {
 console.log(`
 🤖 HayDay Chat System Loaded
 ╭─────────────────────────────╮
-│  Utilities: HayDayChat.Utils  │
-│  API: HayDayChat.API          │
-│  Storage: HayDayChat.Storage  │
-│  Events: HayDayChat.EventBus  │
+│  ✅ Utilities: Ready        │
+│  ✅ API: Connected          │
+│  ✅ Storage: Available      │
+│  ✅ Events: Initialized     │
 ╰─────────────────────────────╯
 `);
 
 // Health check on load
 window.addEventListener('load', async () => {
-  const isHealthy = await API.ping();
-  if (!isHealthy) {
-    Utils.showToast('Sunucuya bağlanılamadı', 'error', 5000);
+  try {
+    const isHealthy = await HayDayChat.API.ping();
+    if (!isHealthy) {
+      HayDayChat.Utils.showToast('Sunucuya bağlanılamadı', 'error', 5000);
+    } else {
+      console.log('✅ Server connection healthy');
+    }
+  } catch (error) {
+    console.error('Health check failed:', error);
   }
 });

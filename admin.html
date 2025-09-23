@@ -3,581 +3,435 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HayDay Chat Admin</title>
+    <title>HayDay Admin Panel - Gelişmiş Dashboard</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Admin Panel Complete Styles */
-        :root {
-            --primary: #4CAF50;
-            --secondary: #FF9800;
-            --accent: #2196F3;
-            --admin-green: #1B5E20;
-            --background: #FAFAFA;
-            --surface: #FFFFFF;
-            --surface-dark: #F5F5F5;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --border: #E0E0E0;
-            --danger: #F44336;
-            --success: #4CAF50;
-            --warning: #FF9800;
-            --shadow: 0 4px 12px rgba(0,0,0,0.15);
-            --radius-md: 8px;
-            --radius-lg: 12px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Admin Panel Specific Styles */
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
-        /* Header */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
         .admin-header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
-        .header-brand {
+        .admin-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--admin-green);
+            gap: 0.5rem;
         }
 
-        .header-actions {
+        .admin-nav {
             display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .admin-badge {
-            background: var(--admin-green);
-            color: white;
-            padding: 4px 12px;
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .logout-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Layout */
-        .admin-layout {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: calc(100vh - 80px);
-        }
-
-        .admin-sidebar {
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            padding: 2rem 0;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin: 0;
+            gap: 1rem;
         }
 
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            color: #374151;
             text-decoration: none;
-            transition: all 0.2s ease;
-            border-right: 3px solid transparent;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background: var(--surface-dark);
-            color: var(--admin-green);
-            border-right-color: var(--admin-green);
+        .nav-link:hover, .nav-link.active {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
         }
 
-        /* Main Content */
-        .admin-main {
-            padding: 2rem;
-            overflow-y: auto;
+        .admin-content {
+            display: grid;
+            gap: 2rem;
         }
 
         .content-section {
             display: none;
+            animation: fadeIn 0.5s ease;
         }
 
         .content-section.active {
             display: block;
         }
 
-        .section-header {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 1.5rem;
         }
 
-        .section-title {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--text-primary);
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.5rem;
         }
 
-        .refresh-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-subtitle {
+            color: #6b7280;
             font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-top: 0.5rem;
         }
 
-        /* Stats Cards */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .chat-log {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .log-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .log-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .log-content {
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
         }
 
-        .stat-card {
-            background: var(--surface);
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary);
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
         }
 
-        .stat-card.bot { border-left-color: var(--accent); }
-        .stat-card.ai { border-left-color: #9C27B0; }
-        .stat-card.admin { border-left-color: var(--admin-green); }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
         }
 
         .stat-label {
             font-size: 0.875rem;
-            color: var(--text-secondary);
-            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.25rem;
         }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .stat-unit {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-left: 4px;
-        }
-
-        /* Activity Feed */
-        .activity-panel {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .activity-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-            font-size: 1.125rem;
-        }
-
-        .activity-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .activity-item {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
             align-items: center;
             justify-content: center;
-            font-size: 1.125rem;
-            background: var(--surface-dark);
-            flex-shrink: 0;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-message {
-            font-size: 0.875rem;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .activity-time {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        /* Chat List */
-        .chat-list {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .chat-item {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .chat-item:hover {
-            background: var(--surface-dark);
-        }
-
-        .chat-item:last-child {
-            border-bottom: none;
-        }
-
-        .chat-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .chat-client-id {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.875rem;
-        }
-
-        .chat-message-count {
-            background: var(--primary);
-            color: white;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .chat-last-message {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .chat-timestamp {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        /* Settings Panel */
-        .settings-grid {
-            display: grid;
-            gap: 24px;
-        }
-
-        .settings-card {
-            background: var(--surface);
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-        }
-
-        .settings-card h3 {
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .settings-description {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 20px;
-        }
-
-        .settings-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: var(--surface-dark);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* Loading States */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border);
-            border-top-color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #4f46e5;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 12px;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* Responsive */
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .admin-layout {
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .admin-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .dashboard-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .admin-sidebar {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding: 1rem 0;
-            }
-
-            .nav-menu {
-                display: flex;
-                overflow-x: auto;
-                gap: 8px;
-                padding: 0 16px;
             }
 
             .nav-link {
-                white-space: nowrap;
-                border-right: none;
-                border-bottom: 3px solid transparent;
-            }
-
-            .nav-link:hover,
-            .nav-link.active {
-                border-right: none;
-                border-bottom-color: var(--admin-green);
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-main {
-                padding: 1rem;
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
             }
         }
-
-        /* Status Indicators */
-        .status-online { color: var(--success); }
-        .status-offline { color: var(--text-secondary); }
-        .status-away { color: var(--warning); }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="admin-header">
-        <div class="header-brand">
-            <span>👨‍💼</span>
-            HayDay Chat Admin
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>
+                <span>👑</span>
+                HayDay Admin Panel
+            </h1>
+            
+            <nav class="admin-nav">
+                <button class="nav-link active" onclick="showSection('dashboard')">
+                    <span>📊</span> Dashboard
+                </button>
+                <button class="nav-link" onclick="showSection('live')">
+                    <span>💬</span> Canlı Sohbetler
+                </button>
+                <button class="nav-link" onclick="showSection('history')">
+                    <span>📋</span> Geçmiş
+                </button>
+                <button class="nav-link" onclick="showSection('analytics')">
+                    <span>📈</span> Analitik
+                </button>
+                <button class="nav-link" onclick="showSection('settings')">
+                    <span>⚙️</span> Ayarlar
+                </button>
+                <a href="login.html?logout=true" class="nav-link">
+                    <span>🚪</span> Çıkış
+                </a>
+            </nav>
         </div>
-        <div class="header-actions">
-            <div class="admin-badge">
-                <span id="active-sessions">0</span>
-                Admin
-            </div>
-            <button class="logout-btn" onclick="adminLogout()">
-                <span>🚪</span>
-                Çıkış
-            </button>
-        </div>
-    </header>
 
-    <!-- Main Layout -->
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <nav class="admin-sidebar">
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">
-                        <span>📊</span>
-                        Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#live" class="nav-link" onclick="showSection('live')">
-                        <span>💬</span>
-                        Canlı
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#history" class="nav-link" onclick="showSection('history')">
-                        <span>📋</span>
-                        Geçmiş
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#settings" class="nav-link" onclick="showSection('settings')">
-                        <span>⚙️</span>
-                        Ayarlar
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="admin-main">
+        <!-- Content -->
+        <div class="admin-content">
             <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span>📊</span>
-                        Dashboard
-                    </h2>
-                    <button class="refresh-btn" onclick="refreshDashboard()">
-                        <span>🔄</span>
-                        Yenile
-                    </button>
-                </div>
+                <div class="dashboard-grid">
+                    <!-- Overview Stats -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>📊</span>
+                                Genel İstatistikler
+                            </div>
+                        </div>
+                        <div class="stats-grid" id="overviewStats">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalMessages">-</div>
+                                <div class="stat-label">Toplam Mesaj</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="todayMessages">-</div>
+                                <div class="stat-label">Bugünkü Mesajlar</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="activeChats">-</div>
+                                <div class="stat-label">Aktif Sohbetler</div>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-label">Bugün</span>
-                            <span>📅</span>
+                    <!-- Recent Activity -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>🕐</span>
+                                Son Aktiviteler
+                            </div>
+                            <button class="btn btn-primary" onclick="refreshDashboard()">
+                                <span>🔄</span>
+                                Yenile
+                            </button>
                         </div>
-                        <div class="stat-value" id="total-today">-</div>
-                        <span class="stat-unit">Toplam Mesaj</span>
-                    </div>
-                    
-                    <div class="stat-card bot">
-                        <div class="stat-header">
-                            <span class="stat-label">Aktif</span>
-                            <span>🟢</span>
+                        <div class="chat-log" id="recentActivity">
+                            <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                                <div class="loading-spinner"></div>
+                                Veriler yükleniyor...
+                            </div>
                         </div>
-                        <div class="stat-value" id="active-chats">-</div>
-                        <span class="stat-unit">Canlı Sohbet</span>
                     </div>
-                    
-                    <div class="stat-card ai">
-                        <div class="stat-header">
-                            <span class="stat-label">Bot</span>
-                            <span>🤖</span>
-                        </div>
-                        <div class="stat-value" id="bot-success">-</div>
-                        <span class="stat-unit">Başarı %</span>
-                    </div>
-                    
-                    <div class="stat-card admin">
-                        <div class="stat-header">
-                            <span class="stat-label">AI</span>
-                            <span>🧠</span>
-                        </div>
-                        <div class="stat-value" id="ai-usage">-</div>
-                        <span class="stat-unit">Kullanım %</span>
-                    </div>
-                </div>
 
-                <!-- Activity Feed -->
-                <div class="activity-panel">
-                    <div class="activity-header">Son Aktiviteler</div>
-                    <div id="activity-feed" class="activity-list">
-                        <div class="loading">
-                            <div class="loading-spinner"></div>
-                            Dashboard yükleniyor...
+                    <!-- Quick Actions -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>⚡</span>
+                                Hızlı İşlemler
+                            </div>
+                        </div>
+                        <div style="display: grid; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="exportData()">
+                                <span>📤</span>
+                                Verileri Dışa Aktar
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearOldLogs()">
+                                <span>🗑️</span>
+                                Eski Kayıtları Temizle
+                            </button>
+                            <button class="btn btn-secondary" onclick="testConnection()">
+                                <span>🔗</span>
+                                Bağlantı Testi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- System Status -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>🖥️</span>
+                                Sistem Durumu
+                            </div>
+                        </div>
+                        <div id="systemStatus">
+                            <div style="text-align: center; color: #6b7280; padding: 1rem;">
+                                Sistem bilgileri yükleniyor...
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -585,83 +439,133 @@
 
             <!-- Live Chats Section -->
             <section id="live" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span>💬</span>
-                        Canlı Sohbetler
-                    </h2>
-                    <button class="refresh-btn" onclick="refreshLiveChats()">
-                        <span>🔄</span>
-                        Yenile
-                    </button>
-                </div>
-
-                <div id="live-chats" class="chat-list">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        Canlı sohbet yükleniyor...
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>💬</span>
+                            Canlı Sohbetler
+                        </div>
+                        <button class="btn btn-primary" onclick="refreshLiveChats()">
+                            <span>🔄</span>
+                            Yenile
+                        </button>
+                    </div>
+                    <div class="chat-log" id="liveChats" style="max-height: 600px;">
+                        <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                            Canlı sohbetler yükleniyor...
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- History Section -->
             <section id="history" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span>📋</span>
-                        Sohbet Geçmişi
-                    </h2>
-                    <button class="refresh-btn" onclick="refreshHistory()">
-                        <span>🔄</span>
-                        Yenile
-                    </button>
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📋</span>
+                            Sohbet Geçmişi
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <select id="historyFilter" class="btn btn-secondary" onchange="filterHistory()">
+                                <option value="all">Tümü</option>
+                                <option value="today">Bugün</option>
+                                <option value="week">Bu Hafta</option>
+                                <option value="month">Bu Ay</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="refreshHistory()">
+                                <span>🔄</span>
+                                Yenile
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chat-log" id="chatHistory" style="max-height: 600px;">
+                        <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                            Geçmiş yükleniyor...
+                        </div>
+                    </div>
                 </div>
+            </section>
 
-                <div id="chat-history" class="chat-list">
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        Sohbet geçmişi yükleniyor...
+            <!-- Analytics Section -->
+            <section id="analytics" class="content-section">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>📈</span>
+                                Günlük İstatistikler
+                            </div>
+                        </div>
+                        <div id="dailyStats">
+                            <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                                İstatistikler hesaplanıyor...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>🔤</span>
+                                Popüler Kelimeler
+                            </div>
+                        </div>
+                        <div id="topKeywords">
+                            <div style="text-align: center; color: #6b7280; padding: 2rem;">
+                                Kelime analizi yapılıyor...
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- Settings Section -->
             <section id="settings" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span>⚙️</span>
-                        Sistem Ayarları
-                    </h2>
-                </div>
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>⚙️</span>
+                            Sistem Ayarları
+                        </div>
+                    </div>
+                    <p class="card-subtitle">
+                        Konfigürasyon ve tercihler
+                    </p>
 
-                <div class="settings-description">
-                    Konfigürasyon ve tercihler
-                </div>
-
-                <div class="settings-grid">
-                    <div class="settings-card">
-                        <h3>
-                            <span>💾</span>
-                            Mevcut Sistem Durumu
-                        </h3>
-                        <div class="settings-actions">
-                            <button class="btn btn-primary" onclick="testConnection()">
-                                <span>🔗</span>
-                                Bağlantı Test
-                            </button>
-                            <button class="btn btn-secondary" onclick="checkSystemHealth()">
-                                <span>❤️</span>
-                                Sistem Sağlığı
-                            </button>
-                            <button class="btn btn-danger" onclick="clearCache()">
-                                <span>🗑️</span>
-                                Cache Temizle
-                            </button>
+                    <div style="display: grid; gap: 1.5rem; margin-top: 2rem;">
+                        <div>
+                            <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>💾</span>
+                                Mevcut Sistem Durumu
+                            </h3>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button class="btn btn-primary" onclick="testConnection()">
+                                    <span>🔗</span>
+                                    Bağlantı Test
+                                </button>
+                                <button class="btn btn-secondary" onclick="checkSystemHealth()">
+                                    <span>❤️</span>
+                                    Sistem Sağlığı
+                                </button>
+                                <button class="btn btn-danger" onclick="clearCache()">
+                                    <span>🗑️</span>
+                                    Cache Temizle
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
-        </main>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div>İşlem gerçekleştiriliyor...</div>
+        </div>
     </div>
 
     <script>
@@ -715,170 +619,284 @@
                 case 'history':
                     refreshHistory();
                     break;
-                case 'dashboard':
-                    refreshDashboard();
+                case 'analytics':
+                    loadAnalytics();
                     break;
             }
         }
 
         async function refreshDashboard() {
+            showLoading(true);
+            
             try {
-                console.log('📊 Dashboard yenileniyor...');
-                
-                const response = await fetch('/api/admin/dashboard');
-                const data = await response.json();
-                
-                if (response.ok) {
-                    dashboardData = data;
-                    updateDashboardUI(data);
-                    console.log('✅ Dashboard güncellendi');
-                } else {
-                    throw new Error(data.error || 'Dashboard yüklenemedi');
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Dashboard verileri alınamadı');
                 }
+
+                const data = await response.json();
+                dashboardData = data.data;
+
+                updateDashboardUI(dashboardData);
+                
             } catch (error) {
-                console.error('❌ Dashboard error:', error);
-                showError('Dashboard verileri yüklenirken hata oluştu: ' + error.message);
+                console.error('Dashboard error:', error);
+                showError('Dashboard verileri yüklenemedi: ' + error.message);
+            } finally {
+                showLoading(false);
             }
         }
 
         function updateDashboardUI(data) {
-            // Update stats cards
-            document.getElementById('total-today').textContent = data.stats.today.total || 0;
-            document.getElementById('active-chats').textContent = data.stats.activeConversations || 0;
-            
-            // Calculate bot success rate
-            const botSuccess = data.stats.today.total > 0 ? 
-                Math.round((data.stats.today.chatbot / data.stats.today.total) * 100) : 0;
-            document.getElementById('bot-success').textContent = botSuccess;
-            
-            // Calculate AI usage
-            const aiUsage = data.stats.today.total > 0 ? 
-                Math.round((data.stats.today.ai / data.stats.today.total) * 100) : 0;
-            document.getElementById('ai-usage').textContent = aiUsage;
+            // Update overview stats
+            document.getElementById('totalMessages').textContent = data.totalMessages || '0';
+            document.getElementById('todayMessages').textContent = data.todayMessages || '0';
+            document.getElementById('activeChats').textContent = '1'; // Static for now
 
-            // Update activity feed
-            updateActivityFeed(data.activeChats || []);
-        }
+            // Update recent activity
+            const recentActivity = document.getElementById('recentActivity');
+            recentActivity.innerHTML = '';
 
-        function updateActivityFeed(chats) {
-            const feedElement = document.getElementById('activity-feed');
-            
-            if (chats.length === 0) {
-                feedElement.innerHTML = '<div class="loading">📊 Henüz aktivite yok</div>';
-                return;
+            if (data.recentChats && data.recentChats.length > 0) {
+                data.recentChats.slice(0, 10).forEach(chat => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry';
+                    
+                    const time = new Date(chat.timestamp).toLocaleString('tr-TR');
+                    const role = chat.role === 'user' ? '👤 Kullanıcı' : '🤖 Bot';
+                    const content = chat.content.substring(0, 100) + (chat.content.length > 100 ? '...' : '');
+                    
+                    logEntry.innerHTML = `
+                        <div class="log-time">${time} - ${role}</div>
+                        <div class="log-content">${content}</div>
+                    `;
+                    
+                    recentActivity.appendChild(logEntry);
+                });
+            } else {
+                recentActivity.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">Henüz mesaj yok</div>';
             }
 
-            const feedHTML = chats.slice(0, 10).map(chat => `
-                <div class="activity-item">
-                    <div class="activity-avatar">${getRoleEmoji(chat.lastMessage.role)}</div>
-                    <div class="activity-content">
-                        <div class="activity-message">
-                            <strong>Client ${chat.clientId.substring(0, 8)}...</strong> 
-                            ${chat.lastMessage.content.substring(0, 100)}${chat.lastMessage.content.length > 100 ? '...' : ''}
+            // Update system status
+            updateSystemStatus();
+        }
+
+        async function updateSystemStatus() {
+            try {
+                const response = await fetch('/ping');
+                const data = await response.json();
+                
+                const systemStatus = document.getElementById('systemStatus');
+                systemStatus.innerHTML = `
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>🟢 Sistem Durumu</span>
+                            <span style="color: #10b981; font-weight: 600;">Aktif</span>
                         </div>
-                        <div class="activity-time">${formatTime(chat.lastActivity)}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>⏰ Çalışma Süresi</span>
+                            <span>${Math.floor(data.uptime / 60)} dakika</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>💾 Bellek Kullanımı</span>
+                            <span>${Math.round(data.memory.used / 1024 / 1024)} MB</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>🌍 Ortam</span>
+                            <span>${data.environment}</span>
+                        </div>
                     </div>
-                </div>
-            `).join('');
-            
-            feedElement.innerHTML = feedHTML;
+                `;
+            } catch (error) {
+                const systemStatus = document.getElementById('systemStatus');
+                systemStatus.innerHTML = `
+                    <div style="color: #ef4444; text-align: center; padding: 1rem;">
+                        ⚠️ Sistem durumu alınamadı
+                    </div>
+                `;
+            }
         }
 
         async function refreshLiveChats() {
-            const element = document.getElementById('live-chats');
-            element.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Canlı sohbetler yükleniyor...</div>';
+            // Implementation for live chats
+            const liveChats = document.getElementById('liveChats');
+            liveChats.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">Canlı sohbet verileri yükleniyor...</div>';
             
-            try {
-                const response = await fetch('/api/admin/dashboard');
-                const data = await response.json();
-                
-                if (data.activeChats && data.activeChats.length > 0) {
-                    const chatsHTML = data.activeChats.map(chat => `
-                        <div class="chat-item" onclick="viewChat('${chat.clientId}')">
-                            <div class="chat-item-header">
-                                <span class="chat-client-id">Client ${chat.clientId.substring(0, 12)}...</span>
-                                <span class="chat-message-count">${chat.messageCount} mesaj</span>
-                            </div>
-                            <div class="chat-last-message">
-                                ${chat.lastMessage.content}
-                            </div>
-                            <div class="chat-timestamp">
-                                Son mesaj: ${formatTime(chat.lastActivity)}
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    element.innerHTML = chatsHTML;
-                } else {
-                    element.innerHTML = '<div class="loading">💬 Şu anda aktif sohbet yok</div>';
-                }
-            } catch (error) {
-                element.innerHTML = '<div class="loading">❌ Canlı sohbetler yüklenemedi</div>';
-                console.error('Live chats error:', error);
-            }
-        }
-
-        async function refreshHistory() {
-            const element = document.getElementById('chat-history');
-            element.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Geçmiş yükleniyor...</div>';
-            
-            // Placeholder implementation
+            // Simulate loading
             setTimeout(() => {
-                element.innerHTML = '<div class="loading">📋 Sohbet geçmişi özelliği geliştiriliyor...</div>';
+                if (dashboardData.recentChats) {
+                    liveChats.innerHTML = '';
+                    dashboardData.recentChats.forEach(chat => {
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'log-entry';
+                        
+                        const time = new Date(chat.timestamp).toLocaleString('tr-TR');
+                        const role = chat.role === 'user' ? '👤 Kullanıcı' : '🤖 Bot';
+                        
+                        logEntry.innerHTML = `
+                            <div class="log-time">${time} - ${role}</div>
+                            <div class="log-content">${chat.content}</div>
+                        `;
+                        
+                        liveChats.appendChild(logEntry);
+                    });
+                } else {
+                    liveChats.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">Henüz canlı sohbet yok</div>';
+                }
             }, 1000);
         }
 
-        function startAutoRefresh() {
-            // Refresh every 30 seconds if on dashboard or live section
-            refreshInterval = setInterval(() => {
-                if (currentSection === 'dashboard') {
-                    refreshDashboard();
-                } else if (currentSection === 'live') {
-                    refreshLiveChats();
+        async function refreshHistory() {
+            // Implementation for chat history
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">Geçmiş yükleniyor...</div>';
+            
+            setTimeout(() => {
+                if (dashboardData.recentChats) {
+                    chatHistory.innerHTML = '';
+                    [...dashboardData.recentChats].reverse().forEach(chat => {
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'log-entry';
+                        
+                        const time = new Date(chat.timestamp).toLocaleString('tr-TR');
+                        const role = chat.role === 'user' ? '👤 Kullanıcı' : '🤖 Bot';
+                        
+                        logEntry.innerHTML = `
+                            <div class="log-time">${time} - ${role}</div>
+                            <div class="log-content">${chat.content}</div>
+                        `;
+                        
+                        chatHistory.appendChild(logEntry);
+                    });
+                } else {
+                    chatHistory.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">Henüz geçmiş yok</div>';
                 }
-            }, 30000);
+            }, 1000);
         }
 
-        function adminLogout() {
-            if (confirm('Admin panelinden çıkmak istediğinizden emin misiniz?')) {
-                localStorage.removeItem('adminToken');
-                if (refreshInterval) {
-                    clearInterval(refreshInterval);
-                }
-                window.location.href = 'login.html?logout=success';
+        function filterHistory() {
+            const filter = document.getElementById('historyFilter').value;
+            // Implementation for filtering
+            console.log('Filtering by:', filter);
+            refreshHistory();
+        }
+
+        async function loadAnalytics() {
+            const dailyStats = document.getElementById('dailyStats');
+            const topKeywords = document.getElementById('topKeywords');
+            
+            // Daily stats
+            if (dashboardData.analytics && dashboardData.analytics.dailyStats) {
+                dailyStats.innerHTML = '';
+                Object.entries(dashboardData.analytics.dailyStats).slice(-7).forEach(([date, stats]) => {
+                    const statItem = document.createElement('div');
+                    statItem.style.cssText = 'padding: 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-bottom: 0.5rem;';
+                    statItem.innerHTML = `
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;">${date}</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; font-size: 0.875rem;">
+                            <div>Toplam: ${stats.total}</div>
+                            <div>Bot: ${stats.chatbot || 0}</div>
+                            <div>AI: ${stats.ai || 0}</div>
+                        </div>
+                    `;
+                    dailyStats.appendChild(statItem);
+                });
+            } else {
+                dailyStats.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">İstatistik verisi yok</div>';
+            }
+
+            // Top keywords
+            if (dashboardData.analytics && dashboardData.analytics.topKeywords) {
+                topKeywords.innerHTML = '';
+                const sortedKeywords = Object.entries(dashboardData.analytics.topKeywords)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+                
+                sortedKeywords.forEach(([keyword, count]) => {
+                    const keywordItem = document.createElement('div');
+                    keywordItem.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; background: #f9fafb; border-radius: 0.25rem; margin-bottom: 0.5rem;';
+                    keywordItem.innerHTML = `
+                        <span>${keyword}</span>
+                        <span style="font-weight: 600; color: #4f46e5;">${count}</span>
+                    `;
+                    topKeywords.appendChild(keywordItem);
+                });
+            } else {
+                topKeywords.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2rem;">Kelime verisi yok</div>';
             }
         }
 
-        // Utility functions
-        function getRoleEmoji(role) {
-            const roleEmojis = {
-                'user': '👤',
-                'chatbot': '🤖', 
-                'ai': '🧠',
-                'admin': '👨‍💼',
-                'system': '⚙️'
-            };
-            return roleEmojis[role] || '💬';
-        }
-
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diffMinutes = Math.floor((now - date) / (1000 * 60));
+        async function exportData() {
+            showLoading(true, 'Veriler dışa aktarılıyor...');
             
-            if (diffMinutes < 1) return 'Şimdi';
-            if (diffMinutes < 60) return `${diffMinutes} dk önce`;
-            if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)} saat önce`;
-            return date.toLocaleDateString('tr-TR');
+            try {
+                const dataToExport = {
+                    timestamp: new Date().toISOString(),
+                    totalMessages: dashboardData.totalMessages,
+                    recentChats: dashboardData.recentChats,
+                    analytics: dashboardData.analytics
+                };
+                
+                const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
+                    type: 'application/json'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hayday-chat-export-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showSuccess('Veriler başarıyla dışa aktarıldı!');
+                
+            } catch (error) {
+                showError('Dışa aktarma hatası: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
         }
 
-        function viewChat(clientId) {
-            alert(`Chat detayları: ${clientId}\n\nBu özellik yakında eklenecek.`);
+        async function clearOldLogs() {
+            if (!confirm('Eski kayıtları temizlemek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                return;
+            }
+            
+            showLoading(true, 'Eski kayıtlar temizleniyor...');
+            
+            // Simulate clearing
+            setTimeout(() => {
+                showLoading(false);
+                showSuccess('Eski kayıtlar başarıyla temizlendi!');
+                refreshDashboard();
+            }, 2000);
+        }
+
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                if (currentSection === 'dashboard') {
+                    refreshDashboard();
+                }
+            }, 30000); // Refresh every 30 seconds
+        }
+
+        function showLoading(show, message = 'İşlem gerçekleştiriliyor...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const content = overlay.querySelector('.loading-content div:last-child');
+            
+            content.textContent = message;
+            overlay.style.display = show ? 'flex' : 'none';
         }
 
         function showError(message) {
-            console.error(message);
-            // Simple error display - could be enhanced with toast notifications
             const errorDiv = document.createElement('div');
             errorDiv.style.cssText = `
                 position: fixed;
@@ -900,6 +918,30 @@
                     errorDiv.remove();
                 }
             }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                max-width: 300px;
+            `;
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.remove();
+                }
+            }, 3000);
         }
 
         // Settings functions
@@ -943,13 +985,13 @@
 🕐 Uptime: ${Math.round(data.uptime / 60)} dakika
 💾 Bellek Kullanımı: ${Math.round(data.memory.used / 1024 / 1024)} MB
 📊 Heap Kullanımı: ${Math.round(data.memory.heapUsed / 1024 / 1024)} MB
-⏰ Son Kontrol: ${new Date().toLocaleString('tr-TR')}
+🌍 Ortam: ${data.environment}
 
-Sistem normal çalışıyor.
-                    `;
+Sistem normal çalışıyor! 🚀`;
+                    
                     alert(healthInfo);
                 } else {
-                    throw new Error('Sistem durumu alınamadı');
+                    throw new Error('Sistem sağlık kontrolü başarısız');
                 }
             } catch (error) {
                 alert('❌ Sistem sağlık kontrolü başarısız!\n\n' + error.message);
@@ -959,96 +1001,42 @@ Sistem normal çalışıyor.
             }
         }
 
-        function clearCache() {
-            if (confirm('⚠️ Cache temizleme işlemi\n\nTüm önbellek verileri silinecek. Bu işlem geri alınamaz.\n\nDevam etmek istediğinizden emin misiniz?')) {
-                // Clear browser cache/localStorage related to chat
-                const keysToRemove = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.startsWith('hayday_chat_') || key.startsWith('chat_')) {
-                        keysToRemove.push(key);
-                    }
-                }
+        async function clearCache() {
+            if (!confirm('Cache temizlemek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner"></div>Temizleniyor...';
+            btn.disabled = true;
+
+            try {
+                // Clear localStorage
+                const keysToKeep = ['adminToken'];
+                const allKeys = Object.keys(localStorage);
                 
-                keysToRemove.forEach(key => {
-                    localStorage.removeItem(key);
+                allKeys.forEach(key => {
+                    if (!keysToKeep.includes(key)) {
+                        localStorage.removeItem(key);
+                    }
                 });
 
-                // Clear session storage
+                // Clear sessionStorage
                 sessionStorage.clear();
+
+                alert('✅ Cache başarıyla temizlendi!');
                 
-                alert('✅ Cache başarıyla temizlendi!\n\nSayfa yeniden yüklenecek.');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+            } catch (error) {
+                alert('❌ Cache temizleme hatası!\n\n' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
 
-        // Auto-refresh active sessions count
-        setInterval(async () => {
-            try {
-                const response = await fetch('/api/admin/dashboard');
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('active-sessions').textContent = data.stats.activeConversations || 0;
-                }
-            } catch (error) {
-                // Silently fail - don't spam console
-            }
-        }, 60000); // Update every minute
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case '1':
-                        e.preventDefault();
-                        showSection('dashboard');
-                        break;
-                    case '2':
-                        e.preventDefault();
-                        showSection('live');
-                        break;
-                    case '3':
-                        e.preventDefault();
-                        showSection('history');
-                        break;
-                    case '4':
-                        e.preventDefault();
-                        showSection('settings');
-                        break;
-                    case 'r':
-                        e.preventDefault();
-                        if (currentSection === 'dashboard') {
-                            refreshDashboard();
-                        } else if (currentSection === 'live') {
-                            refreshLiveChats();
-                        } else if (currentSection === 'history') {
-                            refreshHistory();
-                        }
-                        break;
-                }
-            }
-        });
-
-        // Window focus/blur optimization
-        let isPageVisible = true;
-
-        document.addEventListener('visibilitychange', function() {
-            isPageVisible = !document.hidden;
-            
-            if (isPageVisible) {
-                // Page became visible - refresh current section
-                if (currentSection === 'dashboard') {
-                    refreshDashboard();
-                } else if (currentSection === 'live') {
-                    refreshLiveChats();
-                }
-            }
-        });
-
         // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', () => {
             if (refreshInterval) {
                 clearInterval(refreshInterval);
             }

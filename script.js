@@ -1,5 +1,5 @@
 /**
- * 🔧 HayDay Chat System - Shared Utilities (DÜZELTILMIŞ)
+ * 🔧 HayDay Chat System - Shared Utilities
  * Common functions used across the application
  */
 
@@ -9,7 +9,7 @@ window.HayDayChat = window.HayDayChat || {};
 /**
  * 🛠️ Utility Functions
  */
-HayDayChat.Utils = {
+const Utils = {
   // Generate unique ID
   generateId: (prefix = 'id') => {
     return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -17,7 +17,6 @@ HayDayChat.Utils = {
 
   // Format timestamp to readable time
   formatTime: (timestamp) => {
-    if (!timestamp) return '';
     const date = new Date(timestamp);
     return date.toLocaleTimeString('tr-TR', { 
       hour: '2-digit', 
@@ -27,7 +26,6 @@ HayDayChat.Utils = {
 
   // Format date to readable format
   formatDate: (timestamp) => {
-    if (!timestamp) return '';
     const date = new Date(timestamp);
     const today = new Date();
     const yesterday = new Date(today);
@@ -62,7 +60,8 @@ HayDayChat.Utils = {
   // Throttle function
   throttle: (func, limit) => {
     let inThrottle;
-    return function(...args) {
+    return function() {
+      const args = arguments;
       const context = this;
       if (!inThrottle) {
         func.apply(context, args);
@@ -84,7 +83,6 @@ HayDayChat.Utils = {
 
   // Sanitize HTML to prevent XSS
   sanitizeHtml: (str) => {
-    if (!str) return '';
     const temp = document.createElement('div');
     temp.textContent = str;
     return temp.innerHTML;
@@ -92,14 +90,12 @@ HayDayChat.Utils = {
 
   // Convert URLs to clickable links
   linkify: (text) => {
-    if (!text) return '';
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
   },
 
   // Simple emoji conversion
   emojify: (text) => {
-    if (!text) return '';
     const emojiMap = {
       ':)': '😊',
       ':-)': '😊',
@@ -174,32 +170,29 @@ HayDayChat.Utils = {
       font-weight: 500;
       max-width: 300px;
       word-wrap: break-word;
-      animation: slideInToast 0.3s ease;
+      animation: slideIn 0.3s ease;
     `;
 
-    // Add slide-in animation (only if not exists)
-    if (!document.getElementById('toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'toast-styles';
-      style.textContent = `
-        @keyframes slideInToast {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutToast {
-          from { transform: translateX(0); opacity: 1; }
-          to { transform: translateX(100%); opacity: 0; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
+    // Add slide-in animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
 
     toast.textContent = message;
     document.body.appendChild(toast);
 
     // Auto remove
     setTimeout(() => {
-      toast.style.animation = 'slideOutToast 0.3s ease';
+      toast.style.animation = 'slideOut 0.3s ease';
       setTimeout(() => {
         if (toast.parentNode) {
           toast.remove();
@@ -208,16 +201,27 @@ HayDayChat.Utils = {
     }, duration);
 
     return toast;
+  },
+
+  // ✅ DÜZELTİLDİ: Email validation function
+  isValidEmail: (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  },
+
+  // Phone validation (Turkish format)
+  isValidPhone: (phone) => {
+    const phoneRegex = /^(\+90|0)?[1-9][0-9]{9}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
   }
 };
 
 /**
  * 🎨 Animation Helpers
  */
-HayDayChat.Animations = {
+const Animations = {
   // Smooth scroll to element
   scrollTo: (element, duration = 300) => {
-    if (!element) return;
     const start = element.scrollTop;
     const target = element.scrollHeight - element.clientHeight;
     const change = target - start;
@@ -242,7 +246,6 @@ HayDayChat.Animations = {
 
   // Fade in element
   fadeIn: (element, duration = 300) => {
-    if (!element) return;
     element.style.opacity = '0';
     element.style.display = 'block';
     
@@ -263,7 +266,6 @@ HayDayChat.Animations = {
 
   // Fade out element
   fadeOut: (element, duration = 300) => {
-    if (!element) return;
     let start = null;
     function animate(timestamp) {
       if (!start) start = timestamp;
@@ -283,7 +285,6 @@ HayDayChat.Animations = {
 
   // Bounce animation
   bounce: (element) => {
-    if (!element) return;
     element.style.animation = 'bounce 0.6s ease';
     setTimeout(() => {
       element.style.animation = '';
@@ -294,13 +295,13 @@ HayDayChat.Animations = {
 /**
  * 🔄 API Helper Functions
  */
-HayDayChat.API = {
+const API = {
   // Base API URL
   baseURL: window.location.origin,
 
   // Generic fetch wrapper
   request: async (endpoint, options = {}) => {
-    const url = `${HayDayChat.API.baseURL}${endpoint}`;
+    const url = `${API.baseURL}${endpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -311,18 +312,10 @@ HayDayChat.API = {
 
     try {
       const response = await fetch(url, config);
-      
-      // Handle non-JSON responses
-      let data;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        data = { message: await response.text() };
-      }
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || `HTTP ${response.status}`);
+        throw new Error(data.error || `HTTP ${response.status}`);
       }
 
       return data;
@@ -334,12 +327,12 @@ HayDayChat.API = {
 
   // GET request
   get: (endpoint, headers = {}) => {
-    return HayDayChat.API.request(endpoint, { method: 'GET', headers });
+    return API.request(endpoint, { method: 'GET', headers });
   },
 
   // POST request
   post: (endpoint, data = {}, headers = {}) => {
-    return HayDayChat.API.request(endpoint, {
+    return API.request(endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify(data)
@@ -349,8 +342,8 @@ HayDayChat.API = {
   // Health check
   ping: async () => {
     try {
-      const response = await HayDayChat.API.get('/ping');
-      return response && response.ok;
+      const response = await API.get('/ping');
+      return response.ok;
     } catch {
       return false;
     }
@@ -360,7 +353,7 @@ HayDayChat.API = {
 /**
  * 💾 Storage Helpers
  */
-HayDayChat.Storage = {
+const Storage = {
   // Get from localStorage with fallback
   get: (key, defaultValue = null) => {
     try {
@@ -405,34 +398,28 @@ HayDayChat.Storage = {
 /**
  * 🎯 Event Management
  */
-HayDayChat.EventBus = {
+const EventBus = {
   events: {},
 
   // Subscribe to event
   on: (event, callback) => {
-    if (!HayDayChat.EventBus.events[event]) {
-      HayDayChat.EventBus.events[event] = [];
+    if (!EventBus.events[event]) {
+      EventBus.events[event] = [];
     }
-    HayDayChat.EventBus.events[event].push(callback);
+    EventBus.events[event].push(callback);
   },
 
   // Unsubscribe from event
   off: (event, callback) => {
-    if (HayDayChat.EventBus.events[event]) {
-      HayDayChat.EventBus.events[event] = HayDayChat.EventBus.events[event].filter(cb => cb !== callback);
+    if (EventBus.events[event]) {
+      EventBus.events[event] = EventBus.events[event].filter(cb => cb !== callback);
     }
   },
 
   // Emit event
   emit: (event, data) => {
-    if (HayDayChat.EventBus.events[event]) {
-      HayDayChat.EventBus.events[event].forEach(callback => {
-        try {
-          callback(data);
-        } catch (error) {
-          console.error('Event callback error:', error);
-        }
-      });
+    if (EventBus.events[event]) {
+      EventBus.events[event].forEach(callback => callback(data));
     }
   }
 };
@@ -440,17 +427,15 @@ HayDayChat.EventBus = {
 /**
  * 🔧 Form Validation
  */
-HayDayChat.Validator = {
+const Validator = {
   // Validate email
   email: (email) => {
-    if (!email) return false;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   },
 
   // Validate phone (Turkish format)
   phone: (phone) => {
-    if (!phone) return false;
     const regex = /^(\+90|0)?[1-9][0-9]{9}$/;
     return regex.test(phone.replace(/\s/g, ''));
   },
@@ -479,12 +464,12 @@ HayDayChat.Validator = {
 /**
  * 🎮 Keyboard Shortcuts
  */
-HayDayChat.Shortcuts = {
+const Shortcuts = {
   handlers: {},
 
   // Register shortcut
   register: (key, callback, description = '') => {
-    HayDayChat.Shortcuts.handlers[key] = { callback, description };
+    Shortcuts.handlers[key] = { callback, description };
   },
 
   // Handle keydown event
@@ -500,25 +485,25 @@ HayDayChat.Shortcuts = {
     
     const keyString = key.join('+');
     
-    if (HayDayChat.Shortcuts.handlers[keyString]) {
+    if (Shortcuts.handlers[keyString]) {
       event.preventDefault();
-      HayDayChat.Shortcuts.handlers[keyString].callback(event);
+      Shortcuts.handlers[keyString].callback(event);
     }
   },
 
   // Initialize shortcuts
   init: () => {
-    document.addEventListener('keydown', HayDayChat.Shortcuts.handleKeydown);
+    document.addEventListener('keydown', Shortcuts.handleKeydown);
   }
 };
 
 /**
  * 🔍 Search Utilities
  */
-HayDayChat.Search = {
+const Search = {
   // Highlight search terms in text
   highlight: (text, searchTerm) => {
-    if (!searchTerm || !text) return text;
+    if (!searchTerm) return text;
     
     const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     return text.replace(regex, '<mark>$1</mark>');
@@ -527,15 +512,10 @@ HayDayChat.Search = {
   // Simple fuzzy search
   fuzzyMatch: (text, searchTerm) => {
     if (!searchTerm) return true;
-    if (!text) return false;
     
     const textLower = text.toLowerCase();
     const searchLower = searchTerm.toLowerCase();
     
-    // Simple contains check first
-    if (textLower.includes(searchLower)) return true;
-    
-    // Fuzzy matching
     let textIndex = 0;
     let searchIndex = 0;
     
@@ -553,32 +533,45 @@ HayDayChat.Search = {
 /**
  * 🚀 Performance Monitoring
  */
-HayDayChat.Performance = {
+const Performance = {
   marks: {},
 
   // Start performance mark
   mark: (name) => {
-    HayDayChat.Performance.marks[name] = performance.now();
+    Performance.marks[name] = performance.now();
   },
 
   // Measure performance
   measure: (name) => {
-    if (HayDayChat.Performance.marks[name]) {
-      const duration = performance.now() - HayDayChat.Performance.marks[name];
+    if (Performance.marks[name]) {
+      const duration = performance.now() - Performance.marks[name];
       console.log(`⏱️ ${name}: ${duration.toFixed(2)}ms`);
-      delete HayDayChat.Performance.marks[name];
+      delete Performance.marks[name];
       return duration;
     }
     return 0;
   }
 };
 
+// Export utilities to global namespace
+Object.assign(window.HayDayChat, {
+  Utils,
+  Animations,
+  API,
+  Storage,
+  EventBus,
+  Validator,
+  Shortcuts,
+  Search,
+  Performance
+});
+
 // Initialize shortcuts on load
 document.addEventListener('DOMContentLoaded', () => {
-  HayDayChat.Shortcuts.init();
+  Shortcuts.init();
   
   // Register common shortcuts
-  HayDayChat.Shortcuts.register('escape', () => {
+  Shortcuts.register('escape', () => {
     // Close modals, clear search, etc.
     const searchInput = document.querySelector('.search-input');
     if (searchInput && searchInput.value) {
@@ -592,23 +585,17 @@ document.addEventListener('DOMContentLoaded', () => {
 console.log(`
 🤖 HayDay Chat System Loaded
 ╭─────────────────────────────╮
-│  ✅ Utilities: Ready        │
-│  ✅ API: Connected          │
-│  ✅ Storage: Available      │
-│  ✅ Events: Initialized     │
+│  Utilities: HayDayChat.Utils  │
+│  API: HayDayChat.API          │
+│  Storage: HayDayChat.Storage  │
+│  Events: HayDayChat.EventBus  │
 ╰─────────────────────────────╯
 `);
 
 // Health check on load
 window.addEventListener('load', async () => {
-  try {
-    const isHealthy = await HayDayChat.API.ping();
-    if (!isHealthy) {
-      HayDayChat.Utils.showToast('Sunucuya bağlanılamadı', 'error', 5000);
-    } else {
-      console.log('✅ Server connection healthy');
-    }
-  } catch (error) {
-    console.error('Health check failed:', error);
+  const isHealthy = await API.ping();
+  if (!isHealthy) {
+    Utils.showToast('Sunucuya bağlanılamadı', 'error', 5000);
   }
 });

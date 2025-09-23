@@ -208,7 +208,7 @@ class AIProcessor {
 - Müşterileri doğru sayfalara yönlendirmek
 - Türkçe, kibar ve kısa yanıtlar vermek
 
-📚 Site sayfaları:
+📄 Site sayfaları:
 - Altın/para konuları: "Sorular & İletişim" sayfası
 - Ürün fiyatları: "Ürün Listenizi Oluşturun" sayfası  
 - Depolama hesaplama: "Depolama Hesaplayıcısı" sayfası
@@ -578,6 +578,6 @@ app.post('/webhook/telegram', async (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🤖 HayDay Chat System running on port ${PORT}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/ping`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🏥 Health check: http://localhost:${PORT}/ping`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });

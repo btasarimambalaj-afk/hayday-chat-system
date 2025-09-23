@@ -1,436 +1,644 @@
 /**
- * 🎈 HayDay Chat Loader - Site Integration
- * Bu dosya HayDay sitesinin her sayfasına eklenir
- * Floating chat button ekler ve popup açma işlevini sağlar
+ * 🤖 HayDay Chat Loader - Site Entegrasyonu
+ * Bu dosya her sayfaya eklenir ve floating chat button'u oluşturur
+ * 
+ * Kullanım: <script src="https://hayday-chat.onrender.com/assets/js/chat-loader.js" defer></script>
  */
 
 (function() {
-  'use strict';
+    'use strict';
+    
+    // Configuration
+    const CHAT_CONFIG = {
+        serverUrl: 'https://hayday-chat.onrender.com', // Production URL
+        // serverUrl: 'http://localhost:3000', // Development URL
+        buttonPosition: 'bottom-right', // bottom-right, bottom-left, top-right, top-left
+        buttonSize: 'medium', // small, medium, large
+        theme: 'auto', // light, dark, auto
+        autoOpen: false, // Auto open chat after delay
+        autoOpenDelay: 10000, // 10 seconds
+        persistence: true, // Remember chat state across pages
+        notificationSound: true,
+        welcomeMessage: true,
+        quickActions: true
+    };
 
-  // Configuration
-  const CONFIG = {
-    chatUrl: window.location.origin, // Chat popup URL
-    buttonText: 'Destek',
-    buttonEmoji: '💬',
-    position: 'bottom-right', // bottom-right, bottom-left
-    offsetX: 20,
-    offsetY: 20,
-    zIndex: 9999,
-    storageKey: 'hd_chat_session'
-  };
-
-  // Chat Loader Class
-  class HayDayChatLoader {
-    constructor() {
-      this.isLoaded = false;
-      this.chatWindow = null;
-      this.button = null;
-      this.hasUnreadMessages = false;
-      
-      this.init();
-    }
-
-    init() {
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.createChatButton());
-      } else {
-        this.createChatButton();
-      }
-
-      // Listen for messages from chat popup
-      window.addEventListener('message', (event) => this.handleMessage(event));
-      
-      // Check for existing session
-      this.checkExistingSession();
-    }
-
-    createChatButton() {
-      // Don't add button if already exists or on chat pages
-      if (this.isLoaded || this.isChatPage()) {
-        return;
-      }
-
-      this.injectStyles();
-      this.button = this.createButtonElement();
-      document.body.appendChild(this.button);
-      
-      // Add click handler
-      this.button.addEventListener('click', () => this.openChat());
-      
-      // Add hover effects
-      this.setupHoverEffects();
-      
-      this.isLoaded = true;
-      console.log('🤖 HayDay Chat button loaded');
-    }
-
-    isChatPage() {
-      // Don't show button on chat-related pages
-      const chatPages = ['admin.html', 'login.html', 'index.html'];
-      const currentPage = window.location.pathname.split('/').pop();
-      return chatPages.includes(currentPage);
-    }
-
-    injectStyles() {
-      if (document.getElementById('hayday-chat-styles')) {
-        return; // Styles already injected
-      }
-
-      const styles = document.createElement('style');
-      styles.id = 'hayday-chat-styles';
-      styles.textContent = `
-        .hayday-chat-button {
-          position: fixed;
-          ${CONFIG.position.includes('bottom') ? 'bottom' : 'top'}: ${CONFIG.offsetY}px;
-          ${CONFIG.position.includes('right') ? 'right' : 'left'}: ${CONFIG.offsetX}px;
-          width: 60px;
-          height: 60px;
-          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-          border-radius: 50%;
-          box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
-          cursor: pointer;
-          z-index: ${CONFIG.zIndex};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          border: none;
-          outline: none;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          user-select: none;
-          -webkit-tap-highlight-color: transparent;
+    // Chat Widget Class
+    class HayDayChatWidget {
+        constructor(config) {
+            this.config = { ...CHAT_CONFIG, ...config };
+            this.isOpen = false;
+            this.unreadCount = 0;
+            this.chatWindow = null;
+            this.clientId = this.getOrCreateClientId();
+            this.lastMessageTimestamp = 0;
+            this.pollInterval = null;
+            
+            this.init();
         }
 
-        .hayday-chat-button:hover {
-          transform: scale(1.1);
-          box-shadow: 0 8px 30px rgba(76, 175, 80, 0.6);
+        init() {
+            // Don't load if already exists
+            if (document.querySelector('.hayday-chat-widget')) return;
+            
+            // Create widget elements
+            this.createChatButton();
+            this.createChatWindow();
+            
+            // Load persisted state
+            if (this.config.persistence) {
+                this.loadPersistedState();
+            }
+            
+            // Start background polling
+            this.startBackgroundPolling();
+            
+            // Auto open if configured
+            if (this.config.autoOpen && !this.hasInteracted()) {
+                setTimeout(() => {
+                    if (!this.hasInteracted()) {
+                        this.openChat();
+                    }
+                }, this.config.autoOpenDelay);
+            }
+            
+            // Setup page visibility handling
+            this.setupVisibilityHandler();
         }
 
-        .hayday-chat-button:active {
-          transform: scale(0.95);
+        getOrCreateClientId() {
+            let clientId = localStorage.getItem('hayday_chat_client_id');
+            if (!clientId) {
+                clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('hayday_chat_client_id', clientId);
+            }
+            return clientId;
         }
 
-        .hayday-chat-button-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: 600;
+        createChatButton() {
+            const button = document.createElement('div');
+            button.className = 'hayday-chat-button';
+            button.innerHTML = `
+                <div class="chat-btn-content">
+                    <div class="chat-btn-icon">💬</div>
+                    <div class="chat-btn-text">Destek</div>
+                    <div class="chat-btn-badge" id="chat-unread-badge" style="display: none;">0</div>
+                </div>
+                <div class="chat-btn-pulse"></div>
+            `;
+            
+            // Add styles
+            this.addChatButtonStyles();
+            
+            // Add click handler
+            button.addEventListener('click', () => {
+                this.toggleChat();
+                this.markAsInteracted();
+            });
+            
+            // Add to page
+            document.body.appendChild(button);
         }
 
-        .hayday-chat-emoji {
-          font-size: 20px;
-          margin-bottom: 2px;
-          line-height: 1;
+        addChatButtonStyles() {
+            if (document.querySelector('#hayday-chat-button-styles')) return;
+            
+            const styles = document.createElement('style');
+            styles.id = 'hayday-chat-button-styles';
+            styles.textContent = `
+                .hayday-chat-button {
+                    position: fixed;
+                    ${this.getButtonPosition()}
+                    width: ${this.getButtonSize()};
+                    height: ${this.getButtonSize()};
+                    background: linear-gradient(135deg, #4CAF50, #45a049);
+                    border-radius: 50%;
+                    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+                    cursor: pointer;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.3s ease;
+                    user-select: none;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
+                
+                .hayday-chat-button:hover {
+                    transform: scale(1.1);
+                    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.5);
+                }
+                
+                .chat-btn-content {
+                    color: white;
+                    text-align: center;
+                    position: relative;
+                }
+                
+                .chat-btn-icon {
+                    font-size: ${this.getIconSize()};
+                    line-height: 1;
+                    margin-bottom: 2px;
+                }
+                
+                .chat-btn-text {
+                    font-size: ${this.getTextSize()};
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                }
+                
+                .chat-btn-badge {
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    background: #FF4444;
+                    color: white;
+                    border-radius: 10px;
+                    padding: 2px 6px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    min-width: 16px;
+                    height: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    animation: bounce 2s infinite;
+                }
+                
+                .chat-btn-pulse {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    border-radius: 50%;
+                    background: rgba(76, 175, 80, 0.7);
+                    animation: pulse 2s infinite;
+                    pointer-events: none;
+                }
+                
+                @keyframes pulse {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.1); opacity: 0.7; }
+                    100% { transform: scale(1.2); opacity: 0; }
+                }
+                
+                @keyframes bounce {
+                    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                    40% { transform: translateY(-3px); }
+                    60% { transform: translateY(-2px); }
+                }
+                
+                .hayday-chat-window {
+                    position: fixed;
+                    bottom: 100px;
+                    right: 20px;
+                    width: 380px;
+                    height: 600px;
+                    max-width: calc(100vw - 40px);
+                    max-height: calc(100vh - 120px);
+                    background: white;
+                    border-radius: 16px;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                    z-index: 9998;
+                    display: none;
+                    flex-direction: column;
+                    overflow: hidden;
+                    transform: scale(0.8) translateY(20px);
+                    opacity: 0;
+                    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+                
+                .hayday-chat-window.open {
+                    display: flex;
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
+                
+                .chat-window-header {
+                    background: linear-gradient(135deg, #4CAF50, #45a049);
+                    color: white;
+                    padding: 16px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                
+                .chat-header-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .chat-avatar {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                }
+                
+                .chat-info h3 {
+                    margin: 0;
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+                
+                .chat-status {
+                    font-size: 12px;
+                    opacity: 0.9;
+                }
+                
+                .chat-close {
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 20px;
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    transition: background 0.2s ease;
+                }
+                
+                .chat-close:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                }
+                
+                .chat-window-body {
+                    flex: 1;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                @media (max-width: 480px) {
+                    .hayday-chat-window {
+                        bottom: 80px;
+                        right: 10px;
+                        left: 10px;
+                        width: auto;
+                        height: calc(100vh - 100px);
+                        max-height: none;
+                        border-radius: 12px;
+                    }
+                    
+                    .hayday-chat-button {
+                        bottom: 15px;
+                        right: 15px;
+                    }
+                }
+            `;
+            
+            document.head.appendChild(styles);
         }
 
-        .hayday-chat-text {
-          font-size: 9px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          line-height: 1;
+        getButtonPosition() {
+            const positions = {
+                'bottom-right': 'bottom: 20px; right: 20px;',
+                'bottom-left': 'bottom: 20px; left: 20px;',
+                'top-right': 'top: 20px; right: 20px;',
+                'top-left': 'top: 20px; left: 20px;'
+            };
+            return positions[this.config.buttonPosition] || positions['bottom-right'];
         }
 
-        .hayday-chat-notification {
-          position: absolute;
-          top: -2px;
-          right: -2px;
-          width: 18px;
-          height: 18px;
-          background: #FF5722;
-          border-radius: 50%;
-          border: 2px solid white;
-          display: none;
-          animation: pulse 2s infinite;
+        getButtonSize() {
+            const sizes = {
+                'small': '50px',
+                'medium': '60px', 
+                'large': '70px'
+            };
+            return sizes[this.config.buttonSize] || sizes['medium'];
         }
 
-        .hayday-chat-notification.show {
-          display: block;
+        getIconSize() {
+            const sizes = {
+                'small': '18px',
+                'medium': '20px',
+                'large': '24px'
+            };
+            return sizes[this.config.buttonSize] || sizes['medium'];
         }
 
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
-          70% { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); }
+        getTextSize() {
+            const sizes = {
+                'small': '8px',
+                'medium': '9px',
+                'large': '10px'
+            };
+            return sizes[this.config.buttonSize] || sizes['medium'];
         }
 
-        .hayday-chat-button.minimized {
-          width: 50px;
-          height: 50px;
+        createChatWindow() {
+            const chatWindow = document.createElement('div');
+            chatWindow.className = 'hayday-chat-window';
+            chatWindow.id = 'hayday-chat-window';
+            
+            chatWindow.innerHTML = `
+                <div class="chat-window-header">
+                    <div class="chat-header-info">
+                        <div class="chat-avatar">🤖</div>
+                        <div class="chat-info">
+                            <h3>HayDay Destek</h3>
+                            <div class="chat-status" id="chat-window-status">Çevrimiçi</div>
+                        </div>
+                    </div>
+                    <button class="chat-close" onclick="hayDayChatWidget.closeChat()">×</button>
+                </div>
+                <div class="chat-window-body">
+                    <iframe 
+                        id="chat-iframe" 
+                        src="${this.config.serverUrl}/index.html?embedded=true&clientId=${this.clientId}"
+                        style="width: 100%; height: 100%; border: none; background: #fafafa;"
+                        allow="microphone; camera"
+                    ></iframe>
+                </div>
+            `;
+            
+            document.body.appendChild(chatWindow);
+            this.chatWindow = chatWindow;
+            
+            // Setup iframe communication
+            this.setupIframeMessaging();
         }
 
-        .hayday-chat-button.minimized .hayday-chat-text {
-          display: none;
+        setupIframeMessaging() {
+            window.addEventListener('message', (event) => {
+                if (event.origin !== this.config.serverUrl) return;
+                
+                const { type, data } = event.data;
+                
+                switch (type) {
+                    case 'chat_ready':
+                        this.onChatReady();
+                        break;
+                    case 'new_message':
+                        this.onNewMessage(data);
+                        break;
+                    case 'unread_count':
+                        this.updateUnreadCount(data.count);
+                        break;
+                    case 'chat_close':
+                        this.closeChat();
+                        break;
+                }
+            });
         }
 
-        .hayday-chat-button.minimized .hayday-chat-emoji {
-          font-size: 24px;
-          margin-bottom: 0;
+        onChatReady() {
+            console.log('HayDay Chat ready');
+            
+            // Send configuration to iframe
+            this.sendToIframe('config', {
+                clientId: this.clientId,
+                embedded: true,
+                config: this.config
+            });
         }
 
-        /* Mobile styles */
-        @media (max-width: 768px) {
-          .hayday-chat-button {
-            width: 56px;
-            height: 56px;
-            ${CONFIG.position.includes('right') ? 'right' : 'left'}: 16px;
-            ${CONFIG.position.includes('bottom') ? 'bottom' : 'top'}: 16px;
-          }
-          
-          .hayday-chat-emoji {
-            font-size: 22px;
-          }
-          
-          .hayday-chat-text {
-            font-size: 8px;
-          }
+        onNewMessage(messageData) {
+            if (!this.isOpen && this.config.notificationSound) {
+                this.playNotificationSound();
+            }
+            
+            // Update unread count if chat is closed
+            if (!this.isOpen && messageData.role !== 'user') {
+                this.unreadCount++;
+                this.updateUnreadBadge();
+            }
         }
 
-        /* Accessibility */
-        .hayday-chat-button:focus-visible {
-          outline: 3px solid #4CAF50;
-          outline-offset: 2px;
+        sendToIframe(type, data) {
+            const iframe = document.getElementById('chat-iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type, data }, this.config.serverUrl);
+            }
         }
 
-        /* Print hide */
-        @media print {
-          .hayday-chat-button {
-            display: none !important;
-          }
+        toggleChat() {
+            if (this.isOpen) {
+                this.closeChat();
+            } else {
+                this.openChat();
+            }
         }
-      `;
 
-      document.head.appendChild(styles);
+        openChat() {
+            if (this.isOpen) return;
+            
+            this.isOpen = true;
+            this.chatWindow.classList.add('open');
+            
+            // Clear unread count
+            this.unreadCount = 0;
+            this.updateUnreadBadge();
+            
+            // Save state
+            if (this.config.persistence) {
+                localStorage.setItem('hayday_chat_open', 'true');
+            }
+            
+            // Focus iframe
+            setTimeout(() => {
+                const iframe = document.getElementById('chat-iframe');
+                if (iframe) {
+                    iframe.focus();
+                }
+            }, 300);
+        }
+
+        closeChat() {
+            if (!this.isOpen) return;
+            
+            this.isOpen = false;
+            this.chatWindow.classList.remove('open');
+            
+            // Save state
+            if (this.config.persistence) {
+                localStorage.setItem('hayday_chat_open', 'false');
+            }
+        }
+
+        updateUnreadCount(count) {
+            this.unreadCount = count;
+            this.updateUnreadBadge();
+        }
+
+        updateUnreadBadge() {
+            const badge = document.getElementById('chat-unread-badge');
+            if (badge) {
+                if (this.unreadCount > 0) {
+                    badge.textContent = this.unreadCount > 99 ? '99+' : this.unreadCount;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        startBackgroundPolling() {
+            // Only poll when chat is closed to check for new messages
+            this.pollInterval = setInterval(async () => {
+                if (!this.isOpen) {
+                    try {
+                        const response = await fetch(`${this.config.serverUrl}/api/chat/poll/${this.clientId}?after=${this.lastMessageTimestamp}`);
+                        const data = await response.json();
+                        
+                        if (response.ok && data.newMessages && data.newMessages.length > 0) {
+                            // Count new non-user messages
+                            const newBotMessages = data.newMessages.filter(m => m.role !== 'user');
+                            if (newBotMessages.length > 0) {
+                                this.unreadCount += newBotMessages.length;
+                                this.updateUnreadBadge();
+                                
+                                if (this.config.notificationSound) {
+                                    this.playNotificationSound();
+                                }
+                            }
+                            
+                            this.lastMessageTimestamp = data.lastTimestamp;
+                        }
+                    } catch (error) {
+                        console.error('Background polling error:', error);
+                    }
+                }
+            }, 30000); // Check every 30 seconds
+        }
+
+        playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (error) {
+                console.log('Notification sound not available:', error);
+            }
+        }
+
+        loadPersistedState() {
+            const wasOpen = localStorage.getItem('hayday_chat_open') === 'true';
+            if (wasOpen) {
+                setTimeout(() => this.openChat(), 1000);
+            }
+        }
+
+        markAsInteracted() {
+            localStorage.setItem('hayday_chat_interacted', 'true');
+        }
+
+        hasInteracted() {
+            return localStorage.getItem('hayday_chat_interacted') === 'true';
+        }
+
+        setupVisibilityHandler() {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // Page is hidden - reduce polling frequency
+                    if (this.pollInterval) {
+                        clearInterval(this.pollInterval);
+                        this.pollInterval = setInterval(() => {
+                            if (!this.isOpen) this.checkForNewMessages();
+                        }, 60000); // 1 minute when hidden
+                    }
+                } else {
+                    // Page is visible - restore normal polling
+                    if (this.pollInterval) {
+                        clearInterval(this.pollInterval);
+                        this.startBackgroundPolling();
+                    }
+                }
+            });
+        }
+
+        async checkForNewMessages() {
+            try {
+                const response = await fetch(`${this.config.serverUrl}/api/chat/poll/${this.clientId}?after=${this.lastMessageTimestamp}`);
+                const data = await response.json();
+                
+                if (response.ok && data.newMessages && data.newMessages.length > 0) {
+                    const newBotMessages = data.newMessages.filter(m => m.role !== 'user');
+                    if (newBotMessages.length > 0) {
+                        this.unreadCount += newBotMessages.length;
+                        this.updateUnreadBadge();
+                    }
+                    this.lastMessageTimestamp = data.lastTimestamp;
+                }
+            } catch (error) {
+                console.error('Check messages error:', error);
+            }
+        }
+
+        destroy() {
+            if (this.pollInterval) {
+                clearInterval(this.pollInterval);
+            }
+            
+            const button = document.querySelector('.hayday-chat-button');
+            const window = document.querySelector('.hayday-chat-window');
+            const styles = document.querySelector('#hayday-chat-button-styles');
+            
+            if (button) button.remove();
+            if (window) window.remove();
+            if (styles) styles.remove();
+        }
     }
 
-    createButtonElement() {
-      const button = document.createElement('button');
-      button.className = 'hayday-chat-button';
-      button.setAttribute('aria-label', 'HayDay Destek Chat\'i Aç');
-      button.setAttribute('title', 'Canlı destek için tıklayın');
-      
-      button.innerHTML = `
-        <div class="hayday-chat-button-content">
-          <div class="hayday-chat-emoji">${CONFIG.buttonEmoji}</div>
-          <div class="hayday-chat-text">${CONFIG.buttonText}</div>
-        </div>
-        <div class="hayday-chat-notification" id="chatNotification"></div>
-      `;
-
-      return button;
-    }
-
-    setupHoverEffects() {
-      let hoverTimeout;
-
-      this.button.addEventListener('mouseenter', () => {
-        clearTimeout(hoverTimeout);
-        // Show tooltip or expand button if needed
-      });
-
-      this.button.addEventListener('mouseleave', () => {
-        hoverTimeout = setTimeout(() => {
-          // Hide tooltip or minimize button if needed
-        }, 500);
-      });
-
-      // Touch device handling
-      if ('ontouchstart' in window) {
-        this.button.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          this.button.style.transform = 'scale(0.95)';
-        });
-
-        this.button.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          this.button.style.transform = '';
-          this.openChat();
-        });
-      }
-    }
-
-    openChat() {
-      // Close existing chat window if open
-      if (this.chatWindow && !this.chatWindow.closed) {
-        this.chatWindow.focus();
-        return;
-      }
-
-      // Mobile: Open in same tab
-      if (this.isMobile()) {
-        window.open(CONFIG.chatUrl, '_blank');
-        return;
-      }
-
-      // Desktop: Open popup
-      const windowFeatures = this.getWindowFeatures();
-      this.chatWindow = window.open(
-        CONFIG.chatUrl,
-        'hayday-chat',
-        windowFeatures
-      );
-
-      if (this.chatWindow) {
-        this.chatWindow.focus();
-        this.hideNotification();
-        
-        // Monitor chat window
-        this.monitorChatWindow();
-      } else {
-        // Popup blocked - fallback to new tab
-        console.warn('Popup blocked, opening in new tab');
-        window.open(CONFIG.chatUrl, '_blank');
-      }
-    }
-
-    getWindowFeatures() {
-      const width = 450;
-      const height = 650;
-      const left = window.screen.width - width - 50;
-      const top = Math.max(0, (window.screen.height - height) / 2);
-
-      return [
-        `width=${width}`,
-        `height=${height}`,
-        `left=${left}`,
-        `top=${top}`,
-        'resizable=yes',
-        'scrollbars=no',
-        'toolbar=no',
-        'menubar=no',
-        'location=no',
-        'status=no'
-      ].join(',');
-    }
-
-    monitorChatWindow() {
-      const checkClosed = () => {
-        if (this.chatWindow && this.chatWindow.closed) {
-          this.chatWindow = null;
-          return;
+    // Initialize widget when DOM is ready
+    function initializeWidget() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                window.hayDayChatWidget = new HayDayChatWidget();
+            });
+        } else {
+            window.hayDayChatWidget = new HayDayChatWidget();
         }
-        setTimeout(checkClosed, 1000);
-      };
-      checkClosed();
     }
 
-    handleMessage(event) {
-      // Only accept messages from our chat domain
-      if (event.origin !== window.location.origin) {
-        return;
-      }
-
-      const { type, data } = event.data;
-
-      switch (type) {
-        case 'chat-new-message':
-          this.showNotification();
-          break;
-        case 'chat-read':
-          this.hideNotification();
-          break;
-        case 'chat-minimize':
-          this.minimizeButton();
-          break;
-        case 'chat-restore':
-          this.restoreButton();
-          break;
-      }
-    }
-
-    showNotification() {
-      if (!this.hasUnreadMessages) {
-        this.hasUnreadMessages = true;
-        const notification = document.getElementById('chatNotification');
-        if (notification) {
-          notification.classList.add('show');
+    // Global functions for HTML
+    window.openHayDayChat = function() {
+        if (window.hayDayChatWidget) {
+            window.hayDayChatWidget.openChat();
         }
-      }
-    }
+    };
 
-    hideNotification() {
-      this.hasUnreadMessages = false;
-      const notification = document.getElementById('chatNotification');
-      if (notification) {
-        notification.classList.remove('show');
-      }
-    }
-
-    minimizeButton() {
-      if (this.button) {
-        this.button.classList.add('minimized');
-      }
-    }
-
-    restoreButton() {
-      if (this.button) {
-        this.button.classList.remove('minimized');
-      }
-    }
-
-    checkExistingSession() {
-      // Check if user has an existing chat session
-      const sessionData = localStorage.getItem(CONFIG.storageKey);
-      if (sessionData) {
-        try {
-          const session = JSON.parse(sessionData);
-          // If session exists and is recent, show notification
-          if (session.lastActivity && Date.now() - session.lastActivity < 30 * 60 * 1000) {
-            setTimeout(() => this.showNotification(), 2000);
-          }
-        } catch (e) {
-          // Invalid session data, clear it
-          localStorage.removeItem(CONFIG.storageKey);
+    window.closeHayDayChat = function() {
+        if (window.hayDayChatWidget) {
+            window.hayDayChatWidget.closeChat();
         }
-      }
+    };
+
+    window.toggleHayDayChat = function() {
+        if (window.hayDayChatWidget) {
+            window.hayDayChatWidget.toggleChat();
+        }
+    };
+
+    // Initialize
+    initializeWidget();
+
+    // Debug mode
+    if (window.location.search.includes('debug=chat')) {
+        window.hayDayChat = {
+            widget: window.hayDayChatWidget,
+            config: CHAT_CONFIG,
+            version: '1.0.0'
+        };
+        console.log('🤖 HayDay Chat Widget loaded - Debug mode active');
     }
-
-    isMobile() {
-      return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-
-    // Public API
-    show() {
-      if (this.button) {
-        this.button.style.display = 'flex';
-      }
-    }
-
-    hide() {
-      if (this.button) {
-        this.button.style.display = 'none';
-      }
-    }
-
-    setNotification(show = true) {
-      if (show) {
-        this.showNotification();
-      } else {
-        this.hideNotification();
-      }
-    }
-  }
-
-  // Initialize chat loader
-  const chatLoader = new HayDayChatLoader();
-
-  // Expose to global scope for manual control
-  window.HayDayChat = window.HayDayChat || {};
-  window.HayDayChat.loader = chatLoader;
-
-  // Auto-show notification for returning users (optional)
-  if (document.referrer && !document.referrer.includes(window.location.hostname)) {
-    // User came from external site, show notification after delay
-    setTimeout(() => {
-      if (Math.random() < 0.3) { // 30% chance to show notification
-        chatLoader.setNotification(true);
-      }
-    }, 5000);
-  }
 
 })();
-
-// Console info
-console.log('🤖 HayDay Chat Loader initialized');

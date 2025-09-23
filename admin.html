@@ -5,330 +5,860 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HayDay Chat Admin</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+        /* Admin Panel Complete Styles */
+        :root {
+            --primary: #4CAF50;
+            --secondary: #FF9800;
+            --accent: #2196F3;
+            --admin-green: #1B5E20;
+            --background: #FAFAFA;
+            --surface: #FFFFFF;
+            --surface-dark: #F5F5F5;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --border: #E0E0E0;
+            --danger: #F44336;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --shadow: 0 4px 12px rgba(0,0,0,0.15);
+            --radius-md: 8px;
+            --radius-lg: 12px;
         }
-        .header {
-            background: #1B5E20;
-            color: white;
-            padding: 16px 24px;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .admin-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--admin-green);
         }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-badge {
+            background: var(--admin-green);
+            color: white;
+            padding: 4px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
         .logout-btn {
-            background: #f44336;
+            background: var(--danger);
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: var(--radius-md);
             cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .container {
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .stats {
+
+        /* Layout */
+        .admin-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
+            grid-template-columns: 250px 1fr;
+            min-height: calc(100vh - 80px);
         }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+        .admin-sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
         }
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #4CAF50;
+
+        .nav-menu {
+            list-style: none;
         }
-        .stat-label {
-            color: #666;
-            margin-top: 4px;
+
+        .nav-item {
+            margin: 0;
         }
-        .section {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--surface-dark);
+            color: var(--admin-green);
+            border-right-color: var(--admin-green);
+        }
+
+        /* Main Content */
+        .admin-main {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 24px;
         }
-        .section h2 {
-            margin: 0 0 16px 0;
-            color: #333;
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        button {
-            background: #4CAF50;
+
+        .refresh-btn {
+            background: var(--primary);
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            margin-right: 8px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        button:hover {
-            background: #45a049;
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
-        .loading {
-            text-align: center;
-            color: #666;
-            font-style: italic;
+
+        .stat-card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
         }
+
+        .stat-card.bot { border-left-color: var(--accent); }
+        .stat-card.ai { border-left-color: #9C27B0; }
+        .stat-card.admin { border-left-color: var(--admin-green); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-unit {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        /* Activity Feed */
+        .activity-panel {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .activity-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            background: var(--surface-dark);
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-message {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Chat List */
+        .chat-list {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
         .chat-item {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
+
+        .chat-item:hover {
+            background: var(--surface-dark);
+        }
+
         .chat-item:last-child {
             border-bottom: none;
         }
-        .client-id {
-            font-weight: bold;
-            color: #333;
+
+        .chat-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
-        .message-preview {
-            color: #666;
-            margin-top: 4px;
-            font-size: 14px;
+
+        .chat-client-id {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
         }
-        .timestamp {
-            color: #999;
-            font-size: 12px;
+
+        .chat-message-count {
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
         }
+
+        .chat-last-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .chat-timestamp {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Settings Panel */
+        .settings-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .settings-card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .settings-card h3 {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 20px;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--surface-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 1rem 0;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                gap: 8px;
+                padding: 0 16px;
+            }
+
+            .nav-link {
+                white-space: nowrap;
+                border-right: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .nav-link:hover,
+            .nav-link.active {
+                border-right: none;
+                border-bottom-color: var(--admin-green);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-main {
+                padding: 1rem;
+            }
+        }
+
+        /* Status Indicators */
+        .status-online { color: var(--success); }
+        .status-offline { color: var(--text-secondary); }
+        .status-away { color: var(--warning); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>👨‍💼 HayDay Chat Admin</h1>
-        <button class="logout-btn" onclick="logout()">🚪 Çıkış</button>
-    </div>
-
-    <div class="container">
-        <!-- Stats Cards -->
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="total-messages">-</div>
-                <div class="stat-label">Toplam Mesaj</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="active-chats">-</div>
-                <div class="stat-label">Aktif Sohbet</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="bot-success">-%</div>
-                <div class="stat-label">Bot Başarı</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="ai-usage">-%</div>
-                <div class="stat-label">AI Kullanım</div>
-            </div>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-brand">
+            <span>👨‍💼</span>
+            HayDay Chat Admin
         </div>
-
-        <!-- Dashboard Section -->
-        <div class="section">
-            <h2>📊 Dashboard</h2>
-            <button onclick="refreshDashboard()">🔄 Yenile</button>
-            <button onclick="testConnection()">🔗 Bağlantı Test</button>
-            
-            <div id="dashboard-content">
-                <div class="loading">Dashboard yükleniyor...</div>
+        <div class="header-actions">
+            <div class="admin-badge">
+                <span id="active-sessions">0</span>
+                Admin
             </div>
+            <button class="logout-btn" onclick="adminLogout()">
+                <span>🚪</span>
+                Çıkış
+            </button>
         </div>
+    </header>
 
-        <!-- Active Chats -->
-        <div class="section">
-            <h2>💬 Aktif Sohbetler</h2>
-            <button onclick="refreshChats()">🔄 Yenile</button>
-            
-            <div id="active-chats-list">
-                <div class="loading">Sohbetler yükleniyor...</div>
-            </div>
-        </div>
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">
+                        <span>📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#live" class="nav-link" onclick="showSection('live')">
+                        <span>💬</span>
+                        Canlı
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#history" class="nav-link" onclick="showSection('history')">
+                        <span>📋</span>
+                        Geçmiş
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link" onclick="showSection('settings')">
+                        <span>⚙️</span>
+                        Ayarlar
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-        <!-- System Status -->
-        <div class="section">
-            <h2>⚙️ Sistem Durumu</h2>
-            <button onclick="checkHealth()">❤️ Sistem Sağlığı</button>
-            <button onclick="clearCache()">🗑️ Cache Temizle</button>
-            
-            <div id="system-status">
-                <p>Sistem kontrolleri için butonlara tıklayın.</p>
-            </div>
-        </div>
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📊</span>
+                        Dashboard
+                    </h2>
+                    <button class="refresh-btn" onclick="refreshDashboard()">
+                        <span>🔄</span>
+                        Yenile
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Bugün</span>
+                            <span>📅</span>
+                        </div>
+                        <div class="stat-value" id="total-today">-</div>
+                        <span class="stat-unit">Toplam Mesaj</span>
+                    </div>
+                    
+                    <div class="stat-card bot">
+                        <div class="stat-header">
+                            <span class="stat-label">Aktif</span>
+                            <span>🟢</span>
+                        </div>
+                        <div class="stat-value" id="active-chats">-</div>
+                        <span class="stat-unit">Canlı Sohbet</span>
+                    </div>
+                    
+                    <div class="stat-card ai">
+                        <div class="stat-header">
+                            <span class="stat-label">Bot</span>
+                            <span>🤖</span>
+                        </div>
+                        <div class="stat-value" id="bot-success">-</div>
+                        <span class="stat-unit">Başarı %</span>
+                    </div>
+                    
+                    <div class="stat-card admin">
+                        <div class="stat-header">
+                            <span class="stat-label">AI</span>
+                            <span>🧠</span>
+                        </div>
+                        <div class="stat-value" id="ai-usage">-</div>
+                        <span class="stat-unit">Kullanım %</span>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="activity-panel">
+                    <div class="activity-header">Son Aktiviteler</div>
+                    <div id="activity-feed" class="activity-list">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Dashboard yükleniyor...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Chats Section -->
+            <section id="live" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>💬</span>
+                        Canlı Sohbetler
+                    </h2>
+                    <button class="refresh-btn" onclick="refreshLiveChats()">
+                        <span>🔄</span>
+                        Yenile
+                    </button>
+                </div>
+
+                <div id="live-chats" class="chat-list">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Canlı sohbet yükleniyor...
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📋</span>
+                        Sohbet Geçmişi
+                    </h2>
+                    <button class="refresh-btn" onclick="refreshHistory()">
+                        <span>🔄</span>
+                        Yenile
+                    </button>
+                </div>
+
+                <div id="chat-history" class="chat-list">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Sohbet geçmişi yükleniyor...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>⚙️</span>
+                        Sistem Ayarları
+                    </h2>
+                </div>
+
+                <div class="settings-description">
+                    Konfigürasyon ve tercihler
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>
+                            <span>💾</span>
+                            Mevcut Sistem Durumu
+                        </h3>
+                        <div class="settings-actions">
+                            <button class="btn btn-primary" onclick="testConnection()">
+                                <span>🔗</span>
+                                Bağlantı Test
+                            </button>
+                            <button class="btn btn-secondary" onclick="checkSystemHealth()">
+                                <span>❤️</span>
+                                Sistem Sağlığı
+                            </button>
+                            <button class="btn btn-danger" onclick="clearCache()">
+                                <span>🗑️</span>
+                                Cache Temizle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
-        let dashboardData = {};
+        // Admin Panel JavaScript
+        let currentSection = 'dashboard';
         let refreshInterval;
+        let dashboardData = {};
 
-        // Initialize
+        // Initialize admin panel
         document.addEventListener('DOMContentLoaded', function() {
-            // Check auth
+            initializeAdmin();
+            startAutoRefresh();
+        });
+
+        async function initializeAdmin() {
+            // Check authentication
             const token = localStorage.getItem('adminToken');
             if (!token) {
                 window.location.href = 'login.html';
                 return;
             }
 
-            refreshDashboard();
-            startAutoRefresh();
-        });
+            console.log('🔧 Admin panel başlatılıyor...');
+            
+            // Load initial data
+            await refreshDashboard();
+        }
+
+        function showSection(sectionName) {
+            // Update active section
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            const targetSection = document.getElementById(sectionName);
+            const targetLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            
+            if (targetSection) targetSection.classList.add('active');
+            if (targetLink) targetLink.classList.add('active');
+
+            currentSection = sectionName;
+
+            // Load section data
+            switch(sectionName) {
+                case 'live':
+                    refreshLiveChats();
+                    break;
+                case 'history':
+                    refreshHistory();
+                    break;
+                case 'dashboard':
+                    refreshDashboard();
+                    break;
+            }
+        }
 
         async function refreshDashboard() {
             try {
-                console.log('Refreshing dashboard...');
+                console.log('📊 Dashboard yenileniyor...');
+                
                 const response = await fetch('/api/admin/dashboard');
                 const data = await response.json();
                 
-                console.log('Dashboard data:', data);
-                
                 if (response.ok) {
                     dashboardData = data;
-                    updateUI(data);
+                    updateDashboardUI(data);
+                    console.log('✅ Dashboard güncellendi');
                 } else {
                     throw new Error(data.error || 'Dashboard yüklenemedi');
                 }
             } catch (error) {
-                console.error('Dashboard error:', error);
-                document.getElementById('dashboard-content').innerHTML = 
-                    `<p style="color: red;">Hata: ${error.message}</p>`;
+                console.error('❌ Dashboard error:', error);
+                showError('Dashboard verileri yüklenirken hata oluştu: ' + error.message);
             }
         }
 
-        function updateUI(data) {
-            // Update stats
-            document.getElementById('total-messages').textContent = data.stats.today.total || 0;
+        function updateDashboardUI(data) {
+            // Update stats cards
+            document.getElementById('total-today').textContent = data.stats.today.total || 0;
             document.getElementById('active-chats').textContent = data.stats.activeConversations || 0;
             
+            // Calculate bot success rate
             const botSuccess = data.stats.today.total > 0 ? 
                 Math.round((data.stats.today.chatbot / data.stats.today.total) * 100) : 0;
-            document.getElementById('bot-success').textContent = botSuccess + '%';
+            document.getElementById('bot-success').textContent = botSuccess;
             
+            // Calculate AI usage
             const aiUsage = data.stats.today.total > 0 ? 
                 Math.round((data.stats.today.ai / data.stats.today.total) * 100) : 0;
-            document.getElementById('ai-usage').textContent = aiUsage + '%';
+            document.getElementById('ai-usage').textContent = aiUsage;
 
-            // Update dashboard content
-            const dashboardContent = document.getElementById('dashboard-content');
-            dashboardContent.innerHTML = `
-                <p><strong>Bugün:</strong> ${data.stats.today.total} mesaj</p>
-                <p><strong>Bot:</strong> ${data.stats.today.chatbot} yanıt</p>
-                <p><strong>AI:</strong> ${data.stats.today.ai} yanıt</p>
-                <p><strong>Son güncelleme:</strong> ${new Date().toLocaleTimeString('tr-TR')}</p>
-            `;
-
-            // Update active chats
-            updateActiveChats(data.activeChats || []);
+            // Update activity feed
+            updateActivityFeed(data.activeChats || []);
         }
 
-        function updateActiveChats(chats) {
-            const chatsList = document.getElementById('active-chats-list');
+        function updateActivityFeed(chats) {
+            const feedElement = document.getElementById('activity-feed');
             
             if (chats.length === 0) {
-                chatsList.innerHTML = '<div class="loading">Şu anda aktif sohbet yok</div>';
+                feedElement.innerHTML = '<div class="loading">📊 Henüz aktivite yok</div>';
                 return;
             }
 
-            const chatsHTML = chats.map(chat => `
-                <div class="chat-item">
-                    <div class="client-id">Client: ${chat.clientId.substring(0, 12)}...</div>
-                    <div class="message-preview">${chat.lastMessage.content.substring(0, 100)}...</div>
-                    <div class="timestamp">${formatTime(chat.lastActivity)} - ${chat.messageCount} mesaj</div>
+            const feedHTML = chats.slice(0, 10).map(chat => `
+                <div class="activity-item">
+                    <div class="activity-avatar">${getRoleEmoji(chat.lastMessage.role)}</div>
+                    <div class="activity-content">
+                        <div class="activity-message">
+                            <strong>Client ${chat.clientId.substring(0, 8)}...</strong> 
+                            ${chat.lastMessage.content.substring(0, 100)}${chat.lastMessage.content.length > 100 ? '...' : ''}
+                        </div>
+                        <div class="activity-time">${formatTime(chat.lastActivity)}</div>
+                    </div>
                 </div>
             `).join('');
             
-            chatsList.innerHTML = chatsHTML;
+            feedElement.innerHTML = feedHTML;
         }
 
-        async function refreshChats() {
-            document.getElementById('active-chats-list').innerHTML = 
-                '<div class="loading">Yenileniyor...</div>';
-            await refreshDashboard();
-        }
-
-        async function testConnection() {
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = 'Test ediliyor...';
-            btn.disabled = true;
-
+        async function refreshLiveChats() {
+            const element = document.getElementById('live-chats');
+            element.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Canlı sohbetler yükleniyor...</div>';
+            
             try {
-                const response = await fetch('/ping');
+                const response = await fetch('/api/admin/dashboard');
                 const data = await response.json();
                 
-                if (data.ok) {
-                    alert('✅ Bağlantı başarılı!\n\nServer çalışıyor ve erişilebilir.');
+                if (data.activeChats && data.activeChats.length > 0) {
+                    const chatsHTML = data.activeChats.map(chat => `
+                        <div class="chat-item" onclick="viewChat('${chat.clientId}')">
+                            <div class="chat-item-header">
+                                <span class="chat-client-id">Client ${chat.clientId.substring(0, 12)}...</span>
+                                <span class="chat-message-count">${chat.messageCount} mesaj</span>
+                            </div>
+                            <div class="chat-last-message">
+                                ${chat.lastMessage.content}
+                            </div>
+                            <div class="chat-timestamp">
+                                Son mesaj: ${formatTime(chat.lastActivity)}
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    element.innerHTML = chatsHTML;
                 } else {
-                    throw new Error('Server yanıt vermiyor');
+                    element.innerHTML = '<div class="loading">💬 Şu anda aktif sohbet yok</div>';
                 }
             } catch (error) {
-                alert('❌ Bağlantı hatası!\n\n' + error.message);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
+                element.innerHTML = '<div class="loading">❌ Canlı sohbetler yüklenemedi</div>';
+                console.error('Live chats error:', error);
             }
         }
 
-        async function checkHealth() {
-            const statusDiv = document.getElementById('system-status');
-            statusDiv.innerHTML = '<div class="loading">Sistem kontrol ediliyor...</div>';
-
-            try {
-                const response = await fetch('/ping');
-                const data = await response.json();
-                
-                if (data.ok) {
-                    statusDiv.innerHTML = `
-                        <h3>✅ Sistem Sağlıklı</h3>
-                        <p><strong>Uptime:</strong> ${Math.round(data.uptime / 60)} dakika</p>
-                        <p><strong>Bellek:</strong> ${Math.round(data.memory.used / 1024 / 1024)} MB</p>
-                        <p><strong>Son kontrol:</strong> ${new Date().toLocaleString('tr-TR')}</p>
-                    `;
-                } else {
-                    throw new Error('Sağlık kontrolü başarısız');
-                }
-            } catch (error) {
-                statusDiv.innerHTML = `<p style="color: red;">❌ Sistem hatası: ${error.message}</p>`;
-            }
-        }
-
-        function clearCache() {
-            if (confirm('Cache temizlensin mi? Bu işlem geri alınamaz.')) {
-                // Clear localStorage
-                const keys = Object.keys(localStorage).filter(key => 
-                    key.includes('chat') || key.includes('hayday')
-                );
-                keys.forEach(key => localStorage.removeItem(key));
-                
-                // Clear sessionStorage
-                sessionStorage.clear();
-                
-                alert('✅ Cache temizlendi! Sayfa yeniden yüklenecek.');
-                window.location.reload();
-            }
-        }
-
-        function logout() {
-            if (confirm('Admin panelinden çıkmak istediğinizden emin misiniz?')) {
-                localStorage.removeItem('adminToken');
-                if (refreshInterval) clearInterval(refreshInterval);
-                window.location.href = 'login.html';
-            }
+        async function refreshHistory() {
+            const element = document.getElementById('chat-history');
+            element.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Geçmiş yükleniyor...</div>';
+            
+            // Placeholder implementation
+            setTimeout(() => {
+                element.innerHTML = '<div class="loading">📋 Sohbet geçmişi özelliği geliştiriliyor...</div>';
+            }, 1000);
         }
 
         function startAutoRefresh() {
+            // Refresh every 30 seconds if on dashboard or live section
             refreshInterval = setInterval(() => {
-                refreshDashboard();
-            }, 30000); // 30 saniye
+                if (currentSection === 'dashboard') {
+                    refreshDashboard();
+                } else if (currentSection === 'live') {
+                    refreshLiveChats();
+                }
+            }, 30000);
+        }
+
+        function adminLogout() {
+            if (confirm('Admin panelinden çıkmak istediğinizden emin misiniz?')) {
+                localStorage.removeItem('adminToken');
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                }
+                window.location.href = 'login.html?logout=success';
+            }
+        }
+
+        // Utility functions
+        function getRoleEmoji(role) {
+            const roleEmojis = {
+                'user': '👤',
+                'chatbot': '🤖', 
+                'ai': '🧠',
+                'admin': '👨‍💼',
+                'system': '⚙️'
+            };
+            return roleEmojis[role] || '💬';
         }
 
         function formatTime(timestamp) {
@@ -342,12 +872,187 @@
             return date.toLocaleDateString('tr-TR');
         }
 
-        // Cleanup
-        window.addEventListener('beforeunload', () => {
-            if (refreshInterval) clearInterval(refreshInterval);
+        function viewChat(clientId) {
+            alert(`Chat detayları: ${clientId}\n\nBu özellik yakında eklenecek.`);
+        }
+
+        function showError(message) {
+            console.error(message);
+            // Simple error display - could be enhanced with toast notifications
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #f44336;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-size: 14px;
+                max-width: 300px;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Settings functions
+        async function testConnection() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner"></div>Test ediliyor...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/ping');
+                const data = await response.json();
+                
+                if (data.ok) {
+                    alert('✅ Bağlantı başarılı!\n\nSunucu çalışıyor ve erişilebilir durumda.');
+                } else {
+                    throw new Error('Bağlantı hatası');
+                }
+            } catch (error) {
+                alert('❌ Bağlantı testi başarısız!\n\n' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function checkSystemHealth() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner"></div>Kontrol ediliyor...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/ping');
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const healthInfo = `
+✅ Sistem Sağlığı Raporu
+
+🕐 Uptime: ${Math.round(data.uptime / 60)} dakika
+💾 Bellek Kullanımı: ${Math.round(data.memory.used / 1024 / 1024)} MB
+📊 Heap Kullanımı: ${Math.round(data.memory.heapUsed / 1024 / 1024)} MB
+⏰ Son Kontrol: ${new Date().toLocaleString('tr-TR')}
+
+Sistem normal çalışıyor.
+                    `;
+                    alert(healthInfo);
+                } else {
+                    throw new Error('Sistem durumu alınamadı');
+                }
+            } catch (error) {
+                alert('❌ Sistem sağlık kontrolü başarısız!\n\n' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function clearCache() {
+            if (confirm('⚠️ Cache temizleme işlemi\n\nTüm önbellek verileri silinecek. Bu işlem geri alınamaz.\n\nDevam etmek istediğinizden emin misiniz?')) {
+                // Clear browser cache/localStorage related to chat
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('hayday_chat_') || key.startsWith('chat_')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                
+                keysToRemove.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+
+                // Clear session storage
+                sessionStorage.clear();
+                
+                alert('✅ Cache başarıyla temizlendi!\n\nSayfa yeniden yüklenecek.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }
+
+        // Auto-refresh active sessions count
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/admin/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('active-sessions').textContent = data.stats.activeConversations || 0;
+                }
+            } catch (error) {
+                // Silently fail - don't spam console
+            }
+        }, 60000); // Update every minute
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showSection('dashboard');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showSection('live');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showSection('history');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        showSection('settings');
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        if (currentSection === 'dashboard') {
+                            refreshDashboard();
+                        } else if (currentSection === 'live') {
+                            refreshLiveChats();
+                        } else if (currentSection === 'history') {
+                            refreshHistory();
+                        }
+                        break;
+                }
+            }
         });
 
-        console.log('Simple Admin Panel loaded');
+        // Window focus/blur optimization
+        let isPageVisible = true;
+
+        document.addEventListener('visibilitychange', function() {
+            isPageVisible = !document.hidden;
+            
+            if (isPageVisible) {
+                // Page became visible - refresh current section
+                if (currentSection === 'dashboard') {
+                    refreshDashboard();
+                } else if (currentSection === 'live') {
+                    refreshLiveChats();
+                }
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
     </script>
 </body>
 </html>

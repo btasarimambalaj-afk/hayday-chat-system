@@ -3,349 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HayDay Chat Destek</title>
+    <meta name="description" content="HayDay Destek - Canlı Chat">
+    <title>HayDay Destek</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="chat-popup-body">
     <!-- Connection Status -->
-    <div id="connection-status" class="connection-status connecting" style="display: none;">
-        <span>⚠️</span>
-        Bağlantı kuruluyor...
+    <div id="connectionStatus" class="connection-status" style="display: none;">
+        🔄 Bağlantı kuruluyor...
     </div>
 
-    <!-- Main Chat Container -->
+    <!-- Chat Container -->
     <div class="chat-container">
+        
         <!-- Chat Header -->
-        <header class="chat-header">
+        <div class="chat-header">
             <div class="chat-header-info">
-                <div class="chat-avatar">🤖</div>
+                <div class="chat-avatar">
+                    🌾
+                </div>
+
                 <div class="chat-title">
                     <h3>HayDay Destek</h3>
-                    <div class="chat-status online" id="chat-status">Çevrimiçi</div>
+                    <div class="chat-status">Çevrimiçi</div>
                 </div>
-            </div>
-            <div class="chat-header-actions">
-                <button class="chat-search-btn" onclick="toggleSearch()" title="Arama">
-                    <span>🔍</span>
-                </button>
-                <button class="chat-close-btn" onclick="closeChat()" title="Kapat">
-                    <span>✕</span>
-                </button>
-            </div>
-        </header>
 
-        <!-- Search Bar (hidden by default) -->
-        <div class="chat-search" id="chat-search" style="display: none;">
-            <input type="text" class="search-input" placeholder="Mesajlarda ara..." 
-                   onkeyup="searchMessages(this.value)">
-            <button class="search-clear-btn" onclick="clearSearch()" title="Temizle">
-                <span>✕</span>
-            </button>
+            </div>
+
+            <div class="chat-header-actions">
+                <button class="chat-search-btn" id="searchBtn" aria-label="Arama">
+                    🔍
+                </button>
+                <button class="chat-close-btn" id="closeBtn" aria-label="Kapat">
+                    ✕
+                </button>
+            </div>
+
         </div>
+
+        <!-- Search Bar -->
+        <div class="chat-search" id="searchBar" style="display: none;">
+            <input type="text" class="search-input" id="searchInput" placeholder="Mesajlarda ara..." maxlength="100">
+            <button class="search-clear-btn" id="searchClear">✕</button>
+        </div>
+
 
         <!-- Quick Actions -->
-        <div class="quick-actions" id="quick-actions">
-            <button class="quick-action-btn" onclick="sendQuickMessage('Merhaba!')">
-                <span>👋</span> Merhaba
+        <div class="quick-actions" id="quickActions">
+            <button class="quick-action-btn" data-message="Merhaba">
+                👋 Merhaba
             </button>
-            <button class="quick-action-btn" onclick="sendQuickMessage('Altın transferi nasıl yapılır?')">
-                <span>💰</span> Altın Transferi
+            <button class="quick-action-btn" data-message="Altın transferi hakkında bilgi">
+                💰 Altın Transferi
             </button>
-            <button class="quick-action-btn" onclick="sendQuickMessage('Fiyat listesi görebilir miyim?')">
-                <span>📋</span> Fiyat Listesi
+            <button class="quick-action-btn" data-message="Ürün fiyatları nedir?">
+                💸 Fiyat Listesi
             </button>
-            <button class="quick-action-btn" onclick="sendQuickMessage('Depolama hesaplama')">
-                <span>📦</span> Depolama
+            <button class="quick-action-btn" data-message="Depolama hesaplama">
+                📦 Depolama
             </button>
         </div>
 
+
         <!-- Messages Area -->
-        <main class="chat-messages" id="chat-messages">
+        <div class="chat-messages" id="chatMessages">
+        
             <!-- Welcome Message -->
-            <div class="chat-welcome">
-                <div class="welcome-avatar">🤖</div>
+            <div class="chat-welcome" id="welcomeMessage">
+            
+                <div class="welcome-avatar">
+                    🌾
+                </div>
+
                 <h4>HayDay Destek'e Hoş Geldiniz!</h4>
+
                 <p>Size nasıl yardımcı olabilirim? HayDay oyunu ve sitemizdeki hizmetler hakkında sorularınızı sorabilirsiniz.</p>
+
             </div>
-        </main>
+
+        </div>
 
         <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typing-indicator" style="display: none;">
-            <div class="typing-avatar">🤖</div>
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            <div class="typing-avatar">
+                🤖
+            </div>
+
             <div class="typing-text">
-                <span class="typing-role">HayDay Bot</span> yazıyor...
+                HayDay Bot yazıyor...
                 <div class="typing-dots">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
             </div>
+
         </div>
 
+
         <!-- Input Area -->
-        <footer class="chat-input-container">
+        <div class="chat-input-container">
+        
             <div class="chat-input-wrapper">
                 <textarea 
                     class="chat-input" 
-                    id="message-input" 
-                    placeholder="Mesajınızı yazın..."
-                    rows="1"
+                    id="messageInput" 
+                    placeholder="Mesajınızı yazın..." 
+                    rows="1" 
                     maxlength="1000"
-                    onkeypress="handleKeyPress(event)"
-                    oninput="autoResize(this); updateCharCount()"
                 ></textarea>
-                <button class="send-button" id="send-button" onclick="sendMessage()" disabled>
-                    <span class="send-icon">📤</span>
+                
+                <button class="send-button" id="sendButton" disabled>
+                    <span class="send-icon">→</span>
                 </button>
             </div>
+
             <div class="chat-input-footer">
                 <span class="powered-by">HayDay Malzemeleri tarafından desteklenmektedir</span>
-                <span class="char-count" id="char-count">0/1000</span>
+                <span class="char-count" id="charCount">0/1000</span>
             </div>
-        </footer>
+
+        </div>
     </div>
 
-    <!-- Admin Panel Link -->
-    <a href="login.html" class="admin-link" title="Admin Panel">
-        <span>👨‍💼</span>
-        Admin
-    </a>
+    <!-- Footer Actions -->
+    <div class="chat-footer-actions">
+        <a href="login.html" class="footer-link" id="adminLink">
+            👑👑👑
+            Admin
+        </a>
+    </div>
 
+    <!-- JavaScript -->
+    <script src="script.js"></script>
     <script>
-        // HayDay Chat System
-        class HayDayChatSystem {
+        /**
+         * 🌾 HayDay Chat System - Main Chat Interface
+         */
+
+        class HayDayChat {
             constructor() {
-                this.clientId = this.generateClientId();
+                this.clientId = this.getOrCreateClientId();
                 this.messages = [];
+                this.lastMessageTimestamp = 0;
                 this.isConnected = false;
                 this.pollInterval = null;
-                this.lastPollTimestamp = 0;
-                this.searchActive = false;
-                this.searchResults = [];
+                this.searchMode = false;
+                this.typingTimeout = null;
                 
                 this.init();
             }
 
-            generateClientId() {
-                let clientId = localStorage.getItem('hayday_chat_client_id');
+            getOrCreateClientId() {
+                let clientId = localStorage.getItem('hayday_client_id');
                 if (!clientId) {
-                    clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('hayday_chat_client_id', clientId);
+                    clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    localStorage.setItem('hayday_client_id', clientId);
                 }
                 return clientId;
             }
 
-            async init() {
-                console.log('🤖 HayDay Chat System başlatılıyor...');
+            init() {
+                console.log('🌾 HayDay Chat initializing...', this.clientId);
                 
-                this.updateConnectionStatus('connecting', 'Bağlantı kuruluyor...');
-                
-                // Load chat history
-                await this.loadChatHistory();
-                
-                // Test connection
-                await this.testConnection();
-                
-                // Start polling for new messages
+                this.bindEvents();
+                this.setupAutoResize();
+                this.loadHistory();
                 this.startPolling();
+                this.showConnectionStatus('connecting');
                 
-                // Setup UI handlers
-                this.setupEventHandlers();
+                // Show quick actions initially
+                document.getElementById('quickActions').classList.add('show');
+            }
+
+            bindEvents() {
+                const elements = {
+                    sendButton: document.getElementById('sendButton'),
+                    messageInput: document.getElementById('messageInput'),
+                    searchBtn: document.getElementById('searchBtn'),
+                    closeBtn: document.getElementById('closeBtn'),
+                    searchInput: document.getElementById('searchInput'),
+                    searchClear: document.getElementById('searchClear'),
+                    charCount: document.getElementById('charCount')
+                };
+
+                // Send message
+                elements.sendButton.addEventListener('click', () => this.sendMessage());
                 
-                // Show quick actions after 3 seconds if no messages
-                setTimeout(() => {
-                    if (this.messages.length === 0) {
-                        this.showQuickActions();
+                // Enter to send
+                elements.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
                     }
-                }, 3000);
-            }
-
-            async testConnection() {
-                try {
-                    const response = await fetch('/ping');
-                    const data = await response.json();
-                    
-                    if (data.ok) {
-                        this.isConnected = true;
-                        this.updateConnectionStatus('connected', 'Bağlandı');
-                        setTimeout(() => {
-                            const statusEl = document.getElementById('connection-status');
-                            if (statusEl) statusEl.style.display = 'none';
-                        }, 2000);
-                    } else {
-                        throw new Error('Server responding but not healthy');
-                    }
-                } catch (error) {
-                    console.error('Connection test failed:', error);
-                    this.isConnected = false;
-                    this.updateConnectionStatus('error', 'Bağlantı hatası - Yeniden deniyor...');
-                    
-                    // Retry after 5 seconds
-                    setTimeout(() => this.testConnection(), 5000);
-                }
-            }
-
-            async loadChatHistory() {
-                try {
-                    const response = await fetch(`/api/chat/history/${this.clientId}`);
-                    const data = await response.json();
-                    
-                    if (response.ok && data.history) {
-                        this.messages = data.history;
-                        this.renderMessages();
-                        
-                        if (this.messages.length > 0) {
-                            this.lastPollTimestamp = Math.max(...this.messages.map(m => m.timestamp));
-                        }
-                    }
-                } catch (error) {
-                    console.error('Failed to load chat history:', error);
-                }
-            }
-
-            startPolling() {
-                this.pollInterval = setInterval(() => {
-                    if (this.isConnected) {
-                        this.pollNewMessages();
-                    }
-                }, 3000); // Poll every 3 seconds
-            }
-
-            async pollNewMessages() {
-                try {
-                    const response = await fetch(`/api/chat/poll/${this.clientId}?after=${this.lastPollTimestamp}`);
-                    const data = await response.json();
-                    
-                    if (response.ok && data.newMessages && data.newMessages.length > 0) {
-                        // Add new messages
-                        for (const message of data.newMessages) {
-                            if (!this.messages.find(m => m.timestamp === message.timestamp)) {
-                                this.messages.push(message);
-                            }
-                        }
-                        
-                        this.renderMessages();
-                        this.lastPollTimestamp = data.lastTimestamp;
-                        
-                        // Play notification sound for bot/ai/admin messages
-                        const botMessages = data.newMessages.filter(m => m.role !== 'user');
-                        if (botMessages.length > 0) {
-                            this.playNotificationSound();
-                        }
-                    }
-                } catch (error) {
-                    console.error('Polling error:', error);
-                }
-            }
-
-            renderMessages() {
-                const messagesContainer = document.getElementById('chat-messages');
-                
-                // Clear welcome message if we have messages
-                if (this.messages.length > 0) {
-                    messagesContainer.innerHTML = '';
-                }
-                
-                // Render all messages
-                this.messages.forEach((message, index) => {
-                    const messageElement = this.createMessageElement(message);
-                    messagesContainer.appendChild(messageElement);
                 });
-                
-                // Scroll to bottom
-                this.scrollToBottom();
+
+                // Input handling
+                elements.messageInput.addEventListener('input', (e) => {
+                    this.handleInputChange(e.target.value);
+                });
+
+                // Search functionality
+                elements.searchBtn.addEventListener('click', () => this.toggleSearch());
+                elements.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+                elements.searchClear.addEventListener('click', () => this.clearSearch());
+
+                // Close button
+                elements.closeBtn.addEventListener('click', () => {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage('close-chat', '*');
+                    }
+                });
+
+                // Quick actions
+                document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const message = btn.dataset.message;
+                        elements.messageInput.value = message;
+                        this.handleInputChange(message);
+                        elements.messageInput.focus();
+                    });
+                });
+
+                // Escape key handling
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (this.searchMode) {
+                            this.toggleSearch();
+                        }
+                    }
+                });
             }
 
-            createMessageElement(message) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message message-${message.role}`;
-                messageDiv.dataset.timestamp = message.timestamp;
+            setupAutoResize() {
+                const messageInput = document.getElementById('messageInput');
                 
-                const roleConfig = {
-                    user: { avatar: '👤', name: 'Siz', badge: 'KULLANICI' },
-                    chatbot: { avatar: '🤖', name: 'HayDay Bot', badge: 'BOT' },
-                    ai: { avatar: '🧠', name: 'Yapay Zeka', badge: 'AI' },
-                    admin: { avatar: '👨‍💼', name: 'Destek Uzmanı', badge: 'UZMAN' },
-                    system: { avatar: '⚙️', name: 'Sistem', badge: 'SISTEM' }
-                };
-                
-                const config = roleConfig[message.role] || roleConfig.system;
-                
-                messageDiv.innerHTML = `
-                    <div class="message-header">
-                        <div class="message-avatar">${config.avatar}</div>
-                        <div class="message-info">
-                            <span class="message-sender">${config.name}</span>
-                            <span class="message-badge badge-${message.role}">${config.badge}</span>
-                        </div>
-                        <span class="message-time" title="${new Date(message.timestamp).toLocaleString('tr-TR')}">${this.formatTime(message.timestamp)}</span>
-                    </div>
-                    <div class="message-content">${this.formatMessageContent(message.content)}</div>
-                `;
-                
-                return messageDiv;
+                messageInput.addEventListener('input', () => {
+                    messageInput.style.height = 'auto';
+                    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+                });
             }
 
-            formatMessageContent(content) {
-                // Convert URLs to links
-                content = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            handleInputChange(value) {
+                const sendButton = document.getElementById('sendButton');
+                const charCount = document.getElementById('charCount');
                 
-                // Highlight page mentions
-                const pageMapping = {
-                    'Sorular & İletişim': 'sorular-iletisim',
-                    'Ürün Listenizi Oluşturun': 'urun-listesi',
-                    'Depolama Hesaplayıcısı': 'depolama-hesaplayici',
-                    'Makineler': 'makineler'
-                };
+                // Update character count
+                charCount.textContent = `${value.length}/1000`;
                 
-                for (const [pageName, pageSlug] of Object.entries(pageMapping)) {
-                    const regex = new RegExp(`"(${pageName})"`, 'gi');
-                    content = content.replace(regex, `"<span class="highlight">${pageName}</span>"`);
+                // Enable/disable send button
+                sendButton.disabled = !value.trim() || value.length > 1000;
+                
+                // Update button style
+                if (value.trim() && value.length <= 1000) {
+                    sendButton.style.background = '#4CAF50';
+                } else {
+                    sendButton.style.background = '#757575';
                 }
-                
-                return content;
             }
 
-            formatTime(timestamp) {
-                const date = new Date(timestamp);
-                const now = new Date();
-                const diffMinutes = Math.floor((now - date) / (1000 * 60));
+            async sendMessage() {
+                const messageInput = document.getElementById('messageInput');
+                const message = messageInput.value.trim();
                 
-                if (diffMinutes < 1) return 'Şimdi';
-                if (diffMinutes < 60) return `${diffMinutes} dk`;
-                if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)} sa`;
-                return date.toLocaleDateString('tr-TR');
-            }
+                if (!message || message.length > 1000) return;
 
-            async sendMessage(content = null) {
-                const messageInput = document.getElementById('message-input');
-                const message = content || messageInput.value.trim();
-                
-                if (!message || !this.isConnected) return;
-                
-                console.log('📤 Mesaj gönderiliyor:', message);
-                
-                // Add user message immediately
-                const userMessage = {
+                // Clear input
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                this.handleInputChange('');
+
+                // Add user message to UI
+                this.addMessage({
                     timestamp: Date.now(),
                     clientId: this.clientId,
                     role: 'user',
                     content: message
-                };
-                
-                this.messages.push(userMessage);
-                this.renderMessages();
-                
-                // Clear input
-                if (!content) {
-                    messageInput.value = '';
-                    this.updateCharCount();
-                    this.autoResize(messageInput);
-                }
-                
+                });
+
                 // Show typing indicator
-                this.showTypingIndicator();
-                
+                this.showTyping();
+
                 try {
                     const response = await fetch('/api/chat/send', {
                         method: 'POST',
@@ -357,347 +295,289 @@
                             message: message
                         })
                     });
-                    
-                    console.log('📡 Response status:', response.status);
+
                     const data = await response.json();
-                    console.log('📥 Response data:', data);
                     
+                    // Hide typing indicator
+                    this.hideTyping();
+
                     if (response.ok) {
-                        // Add response immediately for better UX
-                        const botMessage = {
+                        // Add bot response
+                        this.addMessage({
                             timestamp: data.timestamp || Date.now(),
                             clientId: this.clientId,
-                            role: data.role,
+                            role: data.role || 'bot',
                             content: data.reply,
                             confidence: data.confidence
-                        };
-                        
-                        this.messages.push(botMessage);
-                        this.renderMessages();
-                        this.lastPollTimestamp = botMessage.timestamp;
-                        
-                        // Play notification sound
-                        this.playNotificationSound();
-                        
-                        // Hide quick actions after first interaction
-                        this.hideQuickActions();
+                        });
+
+                        this.showConnectionStatus('connected');
                     } else {
                         throw new Error(data.error || 'Mesaj gönderilemedi');
                     }
+
                 } catch (error) {
-                    console.error('❌ Send message error:', error);
+                    console.error('Send message error:', error);
+                    this.hideTyping();
                     
-                    // Add error message
-                    const errorMessage = {
+                    // Show error message
+                    this.addMessage({
                         timestamp: Date.now(),
                         clientId: this.clientId,
                         role: 'system',
-                        content: 'Üzgünüm, mesajınız gönderilemedi. Lütfen tekrar deneyin.'
-                    };
-                    
-                    this.messages.push(errorMessage);
-                    this.renderMessages();
-                } finally {
-                    this.hideTypingIndicator();
+                        content: 'Üzgünüm, bir hata oluştu. Lütfen Sorular & İletişim sayfamızdan bize ulaşın.'
+                    });
+
+                    this.showConnectionStatus('error');
                 }
             }
 
-            showTypingIndicator() {
-                const indicator = document.getElementById('typing-indicator');
-                if (indicator) {
-                    indicator.style.display = 'flex';
-                    this.scrollToBottom();
+            addMessage(message) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const welcomeMessage = document.getElementById('welcomeMessage');
+                
+                // Hide welcome message
+                if (welcomeMessage) {
+                    welcomeMessage.style.display = 'none';
                 }
+
+                // Hide quick actions after first message
+                document.getElementById('quickActions').classList.remove('show');
+
+                // Create message element
+                const messageEl = document.createElement('div');
+                messageEl.className = `message message-${message.role}`;
+                messageEl.dataset.timestamp = message.timestamp;
+
+                const avatar = this.getRoleAvatar(message.role);
+                const badge = this.getRoleBadge(message.role);
+                const time = HayDayChat.Utils.formatTime(message.timestamp);
+
+                messageEl.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar" style="background: ${this.getRoleColor(message.role)}">
+                            ${avatar}
+                        </div>
+                        <div class="message-info">
+                            <span class="message-sender">${this.getRoleName(message.role)}</span>
+                            <span class="message-badge badge-${message.role}">${badge}</span>
+                            <span class="message-time">${time}</span>
+                        </div>
+                    </div>
+                    <div class="message-content">
+                        ${this.formatMessageContent(message.content)}
+                    </div>
+                `;
+
+                messagesContainer.appendChild(messageEl);
+                this.scrollToBottom();
+
+                // Store message
+                this.messages.push(message);
+                this.lastMessageTimestamp = Math.max(this.lastMessageTimestamp, message.timestamp);
+
+                // Store in localStorage
+                localStorage.setItem('hayday_messages', JSON.stringify(this.messages.slice(-50))); // Keep last 50 messages
             }
 
-            hideTypingIndicator() {
-                const indicator = document.getElementById('typing-indicator');
-                if (indicator) {
-                    indicator.style.display = 'none';
-                }
+            formatMessageContent(content) {
+                // Sanitize and format content
+                let formatted = HayDayChat.Utils.sanitizeHtml(content);
+                formatted = HayDayChat.Utils.linkify(formatted);
+                formatted = HayDayChat.Utils.emojify(formatted);
+                return formatted;
+            }
+
+            getRoleAvatar(role) {
+                const avatars = {
+                    user: '👤',
+                    bot: '🤖',
+                    chatbot: '🤖',
+                    ai: '🧠',
+                    admin: '👑',
+                    system: '⚙️'
+                };
+                return avatars[role] || '💬';
+            }
+
+            getRoleBadge(role) {
+                const badges = {
+                    user: 'Sen',
+                    bot: 'Bot',
+                    chatbot: 'Bot',
+                    ai: 'AI',
+                    admin: 'Admin',
+                    system: 'Sistem'
+                };
+                return badges[role] || 'Bot';
+            }
+
+            getRoleName(role) {
+                const names = {
+                    user: 'Sen',
+                    bot: 'HayDay Bot',
+                    chatbot: 'HayDay Bot',
+                    ai: 'HayDay AI',
+                    admin: 'HayDay Admin',
+                    system: 'Sistem'
+                };
+                return names[role] || 'HayDay Bot';
+            }
+
+            getRoleColor(role) {
+                const colors = {
+                    user: '#757575',
+                    bot: '#4CAF50',
+                    chatbot: '#4CAF50',
+                    ai: '#9C27B0',
+                    admin: '#1B5E20',
+                    system: '#FF9800'
+                };
+                return colors[role] || '#4CAF50';
+            }
+
+            showTyping() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                typingIndicator.style.display = 'flex';
+                this.scrollToBottom();
+            }
+
+            hideTyping() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                typingIndicator.style.display = 'none';
             }
 
             scrollToBottom() {
-                const messagesContainer = document.getElementById('chat-messages');
-                if (messagesContainer) {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
+                const messagesContainer = document.getElementById('chatMessages');
+                HayDayChat.Animations.scrollTo(messagesContainer);
             }
 
-            updateConnectionStatus(status, message) {
-                const statusElement = document.getElementById('connection-status');
-                if (statusElement) {
-                    statusElement.className = `connection-status ${status}`;
-                    statusElement.innerHTML = `<span>${this.getStatusIcon(status)}</span> ${message}`;
-                    statusElement.style.display = 'flex';
-                }
-            }
-
-            getStatusIcon(status) {
-                const icons = {
-                    connecting: '🔄',
-                    connected: '✅',
-                    error: '❌'
-                };
-                return icons[status] || '⚠️';
-            }
-
-            playNotificationSound() {
+            async loadHistory() {
                 try {
-                    // Create a subtle notification sound
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 800;
-                    oscillator.type = 'sine';
-                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.1);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.3);
+                    // Load from localStorage first
+                    const savedMessages = localStorage.getItem('hayday_messages');
+                    if (savedMessages) {
+                        const messages = JSON.parse(savedMessages);
+                        messages.forEach(message => this.addMessage(message));
+                    }
+
+                    // Load from server
+                    const response = await fetch(`/api/chat/history/${this.clientId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Process server history if needed
+                    }
                 } catch (error) {
-                    // Notification sound failed, continue silently
-                    console.log('Notification sound not available');
+                    console.error('Load history error:', error);
                 }
             }
 
-            showQuickActions() {
-                const quickActions = document.getElementById('quick-actions');
-                if (quickActions) {
-                    quickActions.classList.add('show');
+            startPolling() {
+                this.pollInterval = setInterval(() => {
+                    this.pollNewMessages();
+                }, 5000); // Poll every 5 seconds
+            }
+
+            async pollNewMessages() {
+                try {
+                    const response = await fetch(`/api/chat/poll/${this.clientId}?after=${this.lastMessageTimestamp}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.newMessages && data.newMessages.length > 0) {
+                            data.newMessages.forEach(message => {
+                                // Only add messages that aren't from this user
+                                if (message.role !== 'user') {
+                                    this.addMessage(message);
+                                }
+                            });
+                        }
+
+                        this.lastMessageTimestamp = data.lastTimestamp || this.lastMessageTimestamp;
+                        this.showConnectionStatus('connected');
+                    } else {
+                        this.showConnectionStatus('error');
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                    this.showConnectionStatus('error');
                 }
             }
 
-            hideQuickActions() {
-                const quickActions = document.getElementById('quick-actions');
-                if (quickActions) {
-                    quickActions.classList.remove('show');
+            showConnectionStatus(status) {
+                const statusEl = document.getElementById('connectionStatus');
+                const messages = {
+                    connecting: '🔄 Bağlantı kuruluyor...',
+                    connected: '✅ Bağlandı',
+                    error: '❌ Bağlantı hatası'
+                };
+
+                statusEl.textContent = messages[status];
+                statusEl.className = `connection-status ${status}`;
+                statusEl.style.display = 'block';
+
+                if (status === 'connected') {
+                    setTimeout(() => {
+                        statusEl.style.display = 'none';
+                    }, 2000);
+                }
+
+                this.isConnected = status === 'connected';
+            }
+
+            toggleSearch() {
+                const searchBar = document.getElementById('searchBar');
+                const searchInput = document.getElementById('searchInput');
+                
+                this.searchMode = !this.searchMode;
+                
+                if (this.searchMode) {
+                    searchBar.style.display = 'flex';
+                    searchInput.focus();
+                } else {
+                    searchBar.style.display = 'none';
+                    this.clearSearch();
                 }
             }
 
-            setupEventHandlers() {
-                const messageInput = document.getElementById('message-input');
-                const sendButton = document.getElementById('send-button');
+            handleSearch(query) {
+                const messages = document.querySelectorAll('.message');
                 
-                if (messageInput && sendButton) {
-                    // Enable send button when there's text
-                    messageInput.addEventListener('input', () => {
-                        const hasText = messageInput.value.trim().length > 0;
-                        sendButton.disabled = !hasText || !this.isConnected;
-                    });
-                }
-                
-                // Handle connection status changes
-                window.addEventListener('online', () => {
-                    this.testConnection();
-                });
-                
-                window.addEventListener('offline', () => {
-                    this.isConnected = false;
-                    this.updateConnectionStatus('error', 'İnternet bağlantısı yok');
-                });
-                
-                // Save state on page unload
-                window.addEventListener('beforeunload', () => {
-                    if (this.pollInterval) {
-                        clearInterval(this.pollInterval);
+                messages.forEach(messageEl => {
+                    const content = messageEl.querySelector('.message-content').textContent;
+                    const isMatch = !query || HayDayChat.Search.fuzzyMatch(content, query);
+                    
+                    if (isMatch) {
+                        messageEl.style.display = 'block';
+                        if (query) {
+                            const contentEl = messageEl.querySelector('.message-content');
+                            contentEl.innerHTML = HayDayChat.Search.highlight(contentEl.textContent, query);
+                        }
+                    } else {
+                        messageEl.style.display = 'none';
                     }
                 });
             }
 
-            // Search functionality
-            searchMessages(query) {
-                if (!query.trim()) {
-                    this.clearSearch();
-                    return;
-                }
-                
-                const searchQuery = query.toLowerCase().trim();
-                this.searchResults = this.messages.filter(message => 
-                    message.content.toLowerCase().includes(searchQuery)
-                );
-                
-                // Highlight search results
-                const messageElements = document.querySelectorAll('.message');
-                messageElements.forEach(element => {
-                    const timestamp = element.dataset.timestamp;
-                    const isMatch = this.searchResults.some(result => result.timestamp == timestamp);
-                    
-                    element.style.opacity = isMatch ? '1' : '0.3';
-                });
-                
-                this.searchActive = true;
-            }
-
             clearSearch() {
-                this.searchActive = false;
-                this.searchResults = [];
-                
-                // Reset opacity
-                const messageElements = document.querySelectorAll('.message');
-                messageElements.forEach(element => {
-                    element.style.opacity = '1';
-                });
-                
-                // Clear search input
-                const searchInput = document.querySelector('.search-input');
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-            }
-
-            updateCharCount() {
-                const input = document.getElementById('message-input');
-                const counter = document.getElementById('char-count');
-                if (input && counter) {
-                    counter.textContent = `${input.value.length}/1000`;
-                }
-            }
-
-            autoResize(textarea) {
-                if (textarea) {
-                    textarea.style.height = 'auto';
-                    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-                }
+                const searchInput = document.getElementById('searchInput');
+                searchInput.value = '';
+                this.handleSearch('');
             }
         }
 
-        // Global functions for HTML onclick handlers
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                if (window.chatSystem) {
-                    chatSystem.sendMessage();
-                }
-            }
-        }
-
-        function autoResize(textarea) {
-            if (window.chatSystem) {
-                chatSystem.autoResize(textarea);
-            }
-        }
-
-        function updateCharCount() {
-            if (window.chatSystem) {
-                chatSystem.updateCharCount();
-            }
-        }
-
-        function toggleSearch() {
-            const searchBar = document.getElementById('chat-search');
-            if (searchBar) {
-                const isVisible = searchBar.style.display !== 'none';
-                searchBar.style.display = isVisible ? 'none' : 'block';
-                
-                if (!isVisible) {
-                    const searchInput = searchBar.querySelector('.search-input');
-                    if (searchInput) searchInput.focus();
-                } else if (window.chatSystem) {
-                    chatSystem.clearSearch();
-                }
-            }
-        }
-
-        function clearSearch() {
-            if (window.chatSystem) {
-                chatSystem.clearSearch();
-            }
-        }
-
-        function searchMessages(query) {
-            if (window.chatSystem) {
-                chatSystem.searchMessages(query);
-            }
-        }
-
-        function sendQuickMessage(message) {
-            if (window.chatSystem) {
-                chatSystem.sendMessage(message);
-            }
-        }
-
-        function sendMessage() {
-            if (window.chatSystem) {
-                chatSystem.sendMessage();
-            }
-        }
-
-        function closeChat() {
-            if (confirm('Chat penceresini kapatmak istediğinizden emin misiniz?')) {
-                window.close();
-            }
-        }
-
-        // Initialize chat system
-        document.addEventListener('DOMContentLoaded', function() {
-            window.chatSystem = new HayDayChatSystem();
+        // Initialize chat when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.haydayChat = new HayDayChat();
         });
 
-        // Add admin link style
-        const adminLinkStyle = document.createElement('style');
-        adminLinkStyle.textContent = `
-            .admin-link {
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                background: var(--admin-green, #1B5E20);
-                color: white;
-                padding: 8px 16px;
-                border-radius: 8px;
-                text-decoration: none;
-                font-size: 0.875rem;
-                font-weight: 500;
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                opacity: 0.8;
-                transition: opacity 0.2s ease;
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.haydayChat && window.haydayChat.pollInterval) {
+                clearInterval(window.haydayChat.pollInterval);
             }
-            .admin-link:hover {
-                opacity: 1;
-            }
-            .quick-actions {
-                padding: 16px;
-                background: var(--surface-dark, #F5F5F5);
-                border-bottom: 1px solid var(--border, #E0E0E0);
-                display: none;
-            }
-            .quick-actions.show {
-                display: block;
-            }
-            .quick-action-btn {
-                background: var(--surface, #FFFFFF);
-                border: 1px solid var(--border, #E0E0E0);
-                border-radius: 8px;
-                padding: 8px 12px;
-                margin: 4px 8px 4px 0;
-                font-size: 0.875rem;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-            }
-            .quick-action-btn:hover {
-                background: var(--primary, #4CAF50);
-                color: white;
-                border-color: var(--primary, #4CAF50);
-            }
-            .message-content .highlight {
-                background: rgba(76, 175, 80, 0.1);
-                padding: 2px 4px;
-                border-radius: 4px;
-                font-weight: 500;
-            }
-        `;
-        document.head.appendChild(adminLinkStyle);
+        });
     </script>
 </body>
 </html>

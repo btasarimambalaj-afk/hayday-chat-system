@@ -5,421 +5,724 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Girişi - HayDay Chat</title>
     <style>
-        body {
+        :root {
+            --primary: #4CAF50;
+            --secondary: #FF9800;
+            --accent: #2196F3;
+            --admin-green: #1B5E20;
+            --background: #FAFAFA;
+            --surface: #FFFFFF;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --border: #E0E0E0;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --shadow: 0 8px 32px rgba(0,0,0,0.1);
+            --radius-lg: 16px;
+            --radius-md: 8px;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--admin-green) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: Arial, sans-serif;
+            padding: 20px;
         }
+
         .login-container {
-            background: white;
-            border-radius: 20px;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
             padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        .login-header {
             text-align: center;
+            margin-bottom: 32px;
         }
-        .login-header h1 {
-            margin: 16px 0 8px;
-            font-size: 28px;
-            color: #1f2937;
+
+        .login-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
         }
-        .step-indicator {
+
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: #FFEBEE;
+            color: #C62828;
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-info {
+            background: #E3F2FD;
+            color: #1565C0;
+            border-left: 4px solid var(--accent);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Steps */
+        .login-steps {
             display: flex;
             justify-content: center;
-            margin: 30px 0;
+            margin-bottom: 32px;
         }
+
         .step {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 8px;
+            font-size: 0.875rem;
             font-weight: 600;
+            margin: 0 8px;
+            position: relative;
         }
+
         .step.active {
-            background: #10b981;
+            background: var(--primary);
             color: white;
         }
-        .step.inactive {
-            background: #e5e7eb;
-            color: #6b7280;
+
+        .step.completed {
+            background: var(--success);
+            color: white;
         }
+
+        .step:not(.active):not(.completed) {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .step.completed:not(:last-child)::after {
+            background: var(--success);
+        }
+
+        /* Forms */
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .form-group {
-            margin-bottom: 20px;
-            text-align: left;
+            margin-bottom: 24px;
         }
-        .form-group label {
+
+        .form-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            color: #374151;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
         }
-        .form-group input {
+
+        .form-input {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 16px;
-            box-sizing: border-box;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: var(--surface);
         }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-input:invalid {
+            border-color: var(--danger);
+        }
+
         .btn {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
         }
+
         .btn-primary {
-            background: #10b981;
+            background: var(--primary);
             color: white;
         }
-        .btn-primary:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
+
+        .btn-primary:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
+
         .btn-secondary {
-            background: transparent;
-            color: #6b7280;
-            border: 2px solid #e5e7eb;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
         }
-        .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--background);
+            border-color: var(--text-secondary);
         }
-        .success-message {
-            background: #f0fdf4;
-            color: #16a34a;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
         }
-        .info-box {
-            background: #f0f9ff;
-            color: #0369a1;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .step-content {
-            display: none;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        .step-content.active {
-            display: block;
+
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
+
         .back-link {
-            color: #6b7280;
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 14px;
-            margin-top: 20px;
-            display: inline-block;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            transition: color 0.2s ease;
         }
-        .logout-notice {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .emergency-logout {
+            margin-top: 16px;
+        }
+
+        .emergency-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .emergency-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 24px;
+                margin: 10px;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            .login-steps {
+                margin-bottom: 24px;
+            }
+
+            .step {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Success animations */
+        .success-checkmark {
+            font-size: 64px;
+            color: var(--success);
+            animation: bounceIn 0.6s ease;
+            margin: 24px 0;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <!-- Header -->
         <div class="login-header">
-            <div style="font-size: 48px;">🔐</div>
-            <h1>Admin Girişi</h1>
-            <p>HayDay Chat Yönetim Paneli</p>
+            <div class="login-icon">🔐</div>
+            <h1 class="login-title">Admin Girişi</h1>
+            <p class="login-subtitle">HayDay Chat Yönetim Paneli</p>
         </div>
 
-        <!-- Logout Notice -->
-        <div id="logoutNotice" class="logout-notice" style="display: none;">
+        <!-- Success Alert -->
+        <div id="success-alert" class="alert alert-success">
             ✅ Başarıyla çıkış yaptınız. Tekrar giriş yapabilirsiniz.
         </div>
 
-        <div class="step-indicator">
-            <div class="step active" id="step1">1</div>
-            <div class="step inactive" id="step2">2</div>
+        <!-- Error Alert -->
+        <div id="error-alert" class="alert alert-error"></div>
+
+        <!-- Steps Indicator -->
+        <div class="login-steps">
+            <div class="step active" id="step-1">1</div>
+            <div class="step" id="step-2">2</div>
         </div>
 
-        <div id="errorMessage" class="error-message"></div>
-        <div id="successMessage" class="success-message"></div>
-
-        <!-- Step 1: Request Code -->
-        <div id="requestCodeStep" class="step-content active">
-            <div class="info-box">
-                📱 <strong>Telegram Doğrulama</strong><br>
+        <!-- Step 1: Telegram ID Form -->
+        <form id="telegram-form" class="login-form active">
+            <div class="alert alert-info show">
+                <span>📱</span>
                 Giriş yapmak için Telegram ID'niz gerekiyor. Size 6 haneli bir kod gönderilecek.
             </div>
 
             <div class="form-group">
-                <label for="telegramId">Telegram ID</label>
-                <input type="text" id="telegramId" value="6476943853" required>
+                <label for="telegram-id" class="form-label">Telegram ID</label>
+                <input 
+                    type="text" 
+                    id="telegram-id" 
+                    class="form-input" 
+                    placeholder="Telegram ID'nizi girin"
+                    required
+                    pattern="[0-9]+"
+                >
             </div>
 
-            <button type="button" class="btn btn-primary" id="sendCodeBtn">
-                📨 Kod Gönder
+            <button type="submit" class="btn btn-primary" id="send-code-btn">
+                <span>📨</span>
+                Kod Gönder
             </button>
-        </div>
+        </form>
 
-        <!-- Step 2: Verify Code -->
-        <div id="verifyCodeStep" class="step-content">
-            <div class="info-box">
-                ✅ <strong>Kod Doğrulama</strong><br>
-                Telegram'a gönderilen 6 haneli kodu girin. Kod 5 dakika geçerlidir.
+        <!-- Step 2: Verification Code Form -->
+        <form id="verification-form" class="login-form">
+            <div class="alert alert-success show">
+                <span>✅</span>
+                Kod Doğrulama: Telegram'a gönderilen 6 haneli kodu girin. Kod 5 dakika geçerlidir.
             </div>
 
             <div class="form-group">
-                <label for="verificationCode">Doğrulama Kodu</label>
-                <input type="text" id="verificationCode" placeholder="123456" maxlength="6" required>
+                <label for="verification-code" class="form-label">Doğrulama Kodu</label>
+                <input 
+                    type="text" 
+                    id="verification-code" 
+                    class="form-input" 
+                    placeholder="6 haneli kodu girin"
+                    required
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                >
             </div>
 
-            <button type="button" class="btn btn-primary" id="verifyCodeBtn">
-                🔓 Giriş Yap
+            <button type="submit" class="btn btn-primary" id="login-btn">
+                <span>🔓</span>
+                Giriş Yap
             </button>
 
-            <button type="button" class="btn btn-secondary" id="newCodeBtn">
-                🔄 Yeni Kod Gönder
+            <button type="button" class="btn btn-secondary" onclick="resendCode()">
+                <span>🔄</span>
+                Yeni Kod Gönder
             </button>
-        </div>
+        </form>
 
-        <a href="/" class="back-link">← Chat'e Dön</a>
-        
-        <!-- Force logout link -->
-        <div style="margin-top: 20px;">
-            <button type="button" class="btn btn-secondary" id="forceLogoutBtn" style="font-size: 12px; padding: 8px 12px;">
-                🚪 Zorla Çıkış Yap
-            </button>
+        <!-- Footer -->
+        <div class="login-footer">
+            <a href="index.html" class="back-link">
+                <span>←</span>
+                Chat'e Dön
+            </a>
+            
+            <div class="emergency-logout">
+                <button class="emergency-btn" onclick="emergencyLogout()">
+                    <span>🚪</span>
+                    Zorla Çıkış Yap
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        class TelegramAuth {
-            constructor() {
-                this.telegramId = null;
-                this.init();
+        let currentStep = 1;
+        let telegramId = '';
+        let isProcessing = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                window.location.href = 'admin.html';
+                return;
             }
 
-            init() {
-                console.log('TelegramAuth starting...');
-                
-                // Check for logout parameter
-                const urlParams = new URLSearchParams(window.location.search);
-                const isLogout = urlParams.get('logout') === 'true';
-                
-                if (isLogout) {
-                    // Force clear all tokens and show logout notice
-                    localStorage.removeItem('admin_token');
-                    sessionStorage.clear();
-                    document.getElementById('logoutNotice').style.display = 'block';
-                    console.log('Logout detected - tokens cleared');
-                }
+            // Show success message if redirected from logout
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('logout') === 'success') {
+                showAlert('success-alert');
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
 
-                // Check if already logged in (but not if logout=true)
-                const token = localStorage.getItem('admin_token');
-                if (token && !isLogout) {
-                    console.log('Token found, redirecting to admin...');
-                    window.location.href = '/admin.html';
+            // Set up form handlers
+            setupFormHandlers();
+        });
+
+        function setupFormHandlers() {
+            // Telegram ID form
+            document.getElementById('telegram-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                if (isProcessing) return;
+
+                const telegramIdInput = document.getElementById('telegram-id');
+                telegramId = telegramIdInput.value.trim();
+
+                if (!telegramId || !/^\d+$/.test(telegramId)) {
+                    showError('Geçerli bir Telegram ID girin (sadece sayılar)');
                     return;
                 }
 
-                this.setupEvents();
-            }
+                await sendVerificationCode();
+            });
 
-            setupEvents() {
-                document.getElementById('sendCodeBtn').onclick = () => this.requestCode();
-                document.getElementById('verifyCodeBtn').onclick = () => this.verifyCode();
-                document.getElementById('newCodeBtn').onclick = () => this.requestCode();
-                document.getElementById('forceLogoutBtn').onclick = () => this.forceLogout();
-                
-                // Auto-format verification code
-                document.getElementById('verificationCode').oninput = (e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                };
-                
-                console.log('Events setup complete');
-            }
+            // Verification form
+            document.getElementById('verification-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                if (isProcessing) return;
 
-            forceLogout() {
-                console.log('Force logout triggered');
-                localStorage.removeItem('admin_token');
-                sessionStorage.clear();
-                
-                // Clear all possible storage
-                try {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                } catch (e) {
-                    console.log('Storage clear error:', e);
+                const code = document.getElementById('verification-code').value.trim();
+
+                if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+                    showError('6 haneli doğrulama kodunu girin');
+                    return;
                 }
-                
-                document.getElementById('logoutNotice').style.display = 'block';
-                
-                // Reset form to initial state
-                this.switchToStep(1);
-                document.getElementById('telegramId').value = '6476943853';
-                document.getElementById('verificationCode').value = '';
-                
-                this.showSuccess('Tüm oturum verileri temizlendi. Yeniden giriş yapabilirsiniz.');
-            }
 
-            showError(message) {
-                const errorDiv = document.getElementById('errorMessage');
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-                setTimeout(() => errorDiv.style.display = 'none', 5000);
-            }
+                await verifyCode(code);
+            });
 
-            showSuccess(message) {
-                const successDiv = document.getElementById('successMessage');
-                successDiv.textContent = message;
-                successDiv.style.display = 'block';
-                setTimeout(() => successDiv.style.display = 'none', 3000);
-            }
+            // Auto-format verification code input
+            document.getElementById('verification-code').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 6) value = value.substring(0, 6);
+                e.target.value = value;
+            });
 
-            switchToStep(step) {
-                // Hide all steps
-                document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.step').forEach(el => {
-                    el.classList.remove('active');
-                    el.classList.add('inactive');
+            // Auto-format telegram ID input
+            document.getElementById('telegram-id').addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        }
+
+        async function sendVerificationCode() {
+            const btn = document.getElementById('send-code-btn');
+            setButtonLoading(btn, true, 'Kod gönderiliyor...');
+            hideAlerts();
+
+            try {
+                const response = await fetch('/api/admin/request-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ telegramId: telegramId })
                 });
 
-                // Show target step
-                if (step === 2) {
-                    document.getElementById('verifyCodeStep').classList.add('active');
-                    document.getElementById('step2').classList.add('active');
-                    document.getElementById('step2').classList.remove('inactive');
-                    document.getElementById('step1').classList.add('active');
-                    document.getElementById('step1').classList.remove('inactive');
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    goToStep(2);
+                    showAlert('success-alert', '✅ Doğrulama kodu Telegram\'a gönderildi!');
                     
-                    setTimeout(() => document.getElementById('verificationCode').focus(), 100);
+                    // Focus on verification input
+                    setTimeout(() => {
+                        document.getElementById('verification-code').focus();
+                    }, 300);
                 } else {
-                    document.getElementById('requestCodeStep').classList.add('active');
-                    document.getElementById('step1').classList.add('active');
-                    document.getElementById('step1').classList.remove('inactive');
+                    throw new Error(data.error || 'Kod gönderilemedi');
                 }
-            }
-
-            async requestCode() {
-                const telegramId = document.getElementById('telegramId').value.trim();
+            } catch (error) {
+                console.error('Send code error:', error);
                 
-                if (!telegramId) {
-                    this.showError('Telegram ID gereklidir');
-                    return;
+                if (error.message.includes('Unauthorized')) {
+                    showError('❌ Yetkisiz erişim! Bu Telegram ID admin paneline erişim izni bulunmuyor.');
+                } else {
+                    showError('❌ ' + error.message);
                 }
-
-                if (!/^\d+$/.test(telegramId)) {
-                    this.showError('Telegram ID sadece rakamlardan oluşmalıdır');
-                    return;
-                }
-
-                this.telegramId = telegramId;
-                const btn = document.getElementById('sendCodeBtn');
-                btn.disabled = true;
-                btn.textContent = '⏳ Gönderiliyor...';
-
-                try {
-                    console.log('API request: /api/admin/request-code');
-                    const response = await fetch('/api/admin/request-code', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ telegramId: this.telegramId })
-                    });
-
-                    const data = await response.json();
-                    console.log('API response:', data);
-
-                    if (response.ok && data.success) {
-                        this.showSuccess('Doğrulama kodu Telegram\'a gönderildi');
-                        this.switchToStep(2);
-                    } else {
-                        this.showError(data.error || 'Kod gönderilemedi');
-                    }
-                } catch (error) {
-                    console.error('Request error:', error);
-                    this.showError('Bağlantı hatası. Tekrar deneyin.');
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = '📨 Kod Gönder';
-                }
-            }
-
-            async verifyCode() {
-                const code = document.getElementById('verificationCode').value.trim();
-                
-                if (!code) {
-                    this.showError('Doğrulama kodu gereklidir');
-                    return;
-                }
-
-                if (code.length !== 6 || !/^\d{6}$/.test(code)) {
-                    this.showError('Doğrulama kodu 6 haneli olmalıdır');
-                    return;
-                }
-
-                const btn = document.getElementById('verifyCodeBtn');
-                btn.disabled = true;
-                btn.textContent = '⏳ Doğrulanıyor...';
-
-                try {
-                    console.log('API request: /api/admin/verify-code');
-                    const response = await fetch('/api/admin/verify-code', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            telegramId: this.telegramId,
-                            code: code
-                        })
-                    });
-
-                    const data = await response.json();
-                    console.log('Verify response:', data);
-
-                    if (response.ok && data.success) {
-                        localStorage.setItem('admin_token', data.token);
-                        this.showSuccess('Giriş başarılı! Yönlendiriliyorsunuz...');
-                        
-                        setTimeout(() => {
-                            window.location.href = '/admin.html';
-                        }, 1500);
-                    } else {
-                        this.showError(data.error || 'Geçersiz kod');
-                        document.getElementById('verificationCode').value = '';
-                        document.getElementById('verificationCode').focus();
-                    }
-                } catch (error) {
-                    console.error('Verify error:', error);
-                    this.showError('Bağlantı hatası. Tekrar deneyin.');
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = '🔓 Giriş Yap';
-                }
+            } finally {
+                setButtonLoading(btn, false, '📨 Kod Gönder');
             }
         }
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded - initializing TelegramAuth');
-            new TelegramAuth();
+        async function verifyCode(code) {
+            const btn = document.getElementById('login-btn');
+            setButtonLoading(btn, true, 'Giriş yapılıyor...');
+            hideAlerts();
+
+            try {
+                const response = await fetch('/api/admin/verify-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        telegramId: telegramId,
+                        code: code 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Store auth token
+                    localStorage.setItem('adminToken', data.token);
+                    
+                    // Show success animation
+                    showSuccessAnimation();
+                    
+                    // Redirect to admin panel
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    throw new Error(data.error || 'Doğrulama başarısız');
+                }
+            } catch (error) {
+                console.error('Verify code error:', error);
+                
+                if (error.message.includes('Invalid or expired')) {
+                    showError('❌ Geçersiz veya süresi dolmuş kod. Yeni bir kod talep edin.');
+                } else if (error.message.includes('Unauthorized')) {
+                    showError('❌ Yetkisiz erişim!');
+                } else {
+                    showError('❌ ' + error.message);
+                }
+                
+                // Clear the input
+                document.getElementById('verification-code').value = '';
+            } finally {
+                setButtonLoading(btn, false, '🔓 Giriş Yap');
+            }
+        }
+
+        async function resendCode() {
+            if (!telegramId) {
+                showError('Önce Telegram ID\'nizi girin');
+                goToStep(1);
+                return;
+            }
+
+            await sendVerificationCode();
+        }
+
+        function goToStep(step) {
+            // Update step indicator
+            for (let i = 1; i <= 2; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                stepEl.classList.remove('active', 'completed');
+                
+                if (i < step) {
+                    stepEl.classList.add('completed');
+                } else if (i === step) {
+                    stepEl.classList.add('active');
+                }
+            }
+
+            // Show/hide forms
+            document.querySelectorAll('.login-form').forEach(form => {
+                form.classList.remove('active');
+            });
+
+            if (step === 1) {
+                document.getElementById('telegram-form').classList.add('active');
+                setTimeout(() => document.getElementById('telegram-id').focus(), 300);
+            } else if (step === 2) {
+                document.getElementById('verification-form').classList.add('active');
+            }
+
+            currentStep = step;
+        }
+
+        function setButtonLoading(button, loading, text) {
+            isProcessing = loading;
+            button.disabled = loading;
+            
+            if (loading) {
+                button.innerHTML = `<div class="loading-spinner"></div>${text}`;
+            } else {
+                button.innerHTML = text;
+            }
+        }
+
+        function showAlert(alertId, message = null) {
+            hideAlerts();
+            const alert = document.getElementById(alertId);
+            if (message) {
+                alert.textContent = message;
+            }
+            alert.classList.add('show');
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('error-alert');
+            alert.textContent = message;
+            showAlert('error-alert');
+        }
+
+        function hideAlerts() {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.classList.remove('show');
+            });
+        }
+
+        function showSuccessAnimation() {
+            const container = document.querySelector('.login-container');
+            container.innerHTML = `
+                <div class="login-header">
+                    <div class="success-checkmark">✅</div>
+                    <h2 class="login-title">Giriş Başarılı!</h2>
+                    <p class="login-subtitle">Admin paneline yönlendiriliyorsunuz...</p>
+                </div>
+            `;
+        }
+
+        function emergencyLogout() {
+            if (confirm('🚨 Acil Durum Çıkışı\n\nTüm oturum verileri silinecek ve ana sayfaya yönlendirileceksiniz.\n\nDevam etmek istediğiniz emin misiniz?')) {
+                // Clear all storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Redirect to main page
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                // Ctrl+Enter to submit current form
+                const activeForm = document.querySelector('.login-form.active');
+                if (activeForm) {
+                    activeForm.dispatchEvent(new Event('submit'));
+                }
+            } else if (e.key === 'Escape') {
+                // Escape to go back
+                if (currentStep === 2) {
+                    goToStep(1);
+                }
+            }
+        });
+
+        // Prevent back navigation during processing
+        window.addEventListener('beforeunload', function(e) {
+            if (isProcessing) {
+                e.preventDefault();
+                e.returnValue = 'İşlem devam ediyor. Sayfadan ayrılmak istediğinizden emin misiniz?';
+            }
         });
     </script>
 </body>

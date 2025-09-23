@@ -1,158 +1,599 @@
-// 🚀 HayDay Chat Quick Debug - Browser Console'da çalıştır
-// F12 basıp Console tab'ında bu kodu yapıştır
+/**
+ * 🛠️ HayDay Chat System - Advanced Debug & Diagnostic Tool
+ * Browser Console'da F12 → Console tab'ında çalıştırın
+ * 
+ * Kullanım:
+ * 1. Bu kodu console'a yapıştır
+ * 2. Otomatik başlar veya manuel komutları kullan
+ */
 
-console.log('🚀 HayDay Chat Debug Başlatılıyor...');
+console.clear();
+console.log(`
+🌾 HayDay Chat Advanced Debug System
+╭──────────────────────────────────────╮
+│  🔧 Comprehensive Diagnostic Tool    │
+│  📊 Real-time System Analysis       │
+│  🚨 Error Detection & Reporting     │
+│  📡 Network Performance Monitor     │
+╰──────────────────────────────────────╯
+`);
 
-// 1. Server Connection Test
-async function testServer() {
-    try {
-        const response = await fetch('/ping');
-        const data = await response.json();
-        console.log('✅ Server Status:', data);
-        return true;
-    } catch (error) {
-        console.error('❌ Server Error:', error);
-        return false;
-    }
-}
-
-// 2. Chat API Test
-async function testChatAPI(message = 'test mesajı') {
-    const clientId = 'debug_' + Date.now();
-    
-    try {
-        console.log(`📤 Mesaj gönderiliyor: "${message}"`);
+class HayDayDebugger {
+    constructor() {
+        this.startTime = Date.now();
+        this.testResults = [];
+        this.errors = [];
+        this.networkMetrics = {};
+        this.systemInfo = {};
         
-        const response = await fetch('/api/chat/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                clientId: clientId,
-                message: message
-            })
+        this.init();
+    }
+
+    init() {
+        this.setupErrorHandlers();
+        this.collectSystemInfo();
+        this.printWelcome();
+        
+        // Auto-start after 3 seconds
+        setTimeout(() => {
+            this.runComprehensiveDiagnostic();
+        }, 3000);
+    }
+
+    setupErrorHandlers() {
+        // Global error handler
+        window.addEventListener('error', (e) => {
+            const error = {
+                type: 'JavaScript Error',
+                message: e.message,
+                filename: e.filename,
+                line: e.lineno,
+                column: e.colno,
+                timestamp: Date.now()
+            };
+            this.errors.push(error);
+            console.error('🚨 Error Detected:', error);
         });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            console.log('✅ Chat API Success:', data);
-            console.log(`📥 Bot Response: "${data.reply}"`);
-            console.log(`🤖 Role: ${data.role}`);
-            console.log(`📊 Confidence: ${data.confidence}`);
-            return data;
-        } else {
-            console.error('❌ Chat API Error:', data);
-            return null;
-        }
-    } catch (error) {
-        console.error('❌ Network Error:', error);
-        return null;
+
+        // Promise rejection handler
+        window.addEventListener('unhandledrejection', (e) => {
+            const error = {
+                type: 'Promise Rejection',
+                message: e.reason.toString(),
+                timestamp: Date.now()
+            };
+            this.errors.push(error);
+            console.error('🚨 Promise Rejection:', error);
+        });
+
+        // Network error tracking
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const url = args[0];
+            const startTime = performance.now();
+            
+            try {
+                const response = await originalFetch(...args);
+                const duration = Math.round(performance.now() - startTime);
+                
+                this.logNetworkRequest(url, response.status, duration, true);
+                return response;
+            } catch (error) {
+                const duration = Math.round(performance.now() - startTime);
+                this.logNetworkRequest(url, 0, duration, false, error);
+                throw error;
+            }
+        };
     }
-}
 
-// 3. Environment Check
-function checkEnvironment() {
-    console.log('🌐 Environment Check:');
-    console.log('URL:', window.location.href);
-    console.log('Origin:', window.location.origin);
-    console.log('User Agent:', navigator.userAgent);
-    console.log('Online:', navigator.onLine);
-}
+    collectSystemInfo() {
+        this.systemInfo = {
+            url: window.location.href,
+            origin: window.location.origin,
+            protocol: window.location.protocol,
+            hostname: window.location.hostname,
+            port: window.location.port || 'default',
+            pathname: window.location.pathname,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            online: navigator.onLine,
+            language: navigator.language,
+            cookieEnabled: navigator.cookieEnabled,
+            localStorage: this.checkLocalStorage(),
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            screen: `${window.screen.width}x${window.screen.height}`,
+            timestamp: new Date().toISOString()
+        };
+    }
 
-// 4. Network Analysis
-async function analyzeNetwork() {
-    console.log('📡 Network Analysis:');
-    
-    // Test different endpoints
-    const endpoints = ['/ping', '/api/chat/send', '/admin.html'];
-    
-    for (const endpoint of endpoints) {
+    checkLocalStorage() {
+        try {
+            const testKey = 'debug_test';
+            localStorage.setItem(testKey, 'test');
+            localStorage.removeItem(testKey);
+            return 'Available';
+        } catch (error) {
+            return `Error: ${error.message}`;
+        }
+    }
+
+    logNetworkRequest(url, status, duration, success, error = null) {
+        const request = {
+            url: url.toString(),
+            status,
+            duration,
+            success,
+            error: error?.message,
+            timestamp: Date.now()
+        };
+
+        if (!this.networkMetrics[url]) {
+            this.networkMetrics[url] = [];
+        }
+        this.networkMetrics[url].push(request);
+    }
+
+    printWelcome() {
+        console.log('%c🚀 Debug Commands Available:', 'color: #4CAF50; font-weight: bold; font-size: 14px;');
+        console.log(`
+📊 debugger.runComprehensiveDiagnostic() - Tam sistem taraması
+🔍 debugger.testServer() - Server bağlantı testi
+💬 debugger.testChatAPI("mesaj") - Chat API testi
+📡 debugger.analyzeNetwork() - Network analizi
+💾 debugger.checkStorage() - LocalStorage kontrolü
+🌐 debugger.checkEnvironment() - Ortam bilgileri
+📈 debugger.performanceTest() - Performance ölçümü
+🚨 debugger.getErrors() - Hata raporu
+📊 debugger.getReport() - Detaylı rapor
+🧹 debugger.cleanup() - Cache temizleme
+        `);
+    }
+
+    // 🔍 Server Connection Test
+    async testServer() {
+        console.log('🔍 Server bağlantısı test ediliyor...');
+        
         try {
             const start = performance.now();
-            const response = await fetch(endpoint, { method: 'HEAD' });
+            const response = await fetch('/ping');
             const duration = Math.round(performance.now() - start);
+            const data = await response.json();
             
-            console.log(`${endpoint}: ${response.status} (${duration}ms)`);
+            const result = {
+                test: 'Server Connection',
+                status: 'SUCCESS',
+                data: data,
+                responseTime: duration,
+                timestamp: Date.now()
+            };
+            
+            this.testResults.push(result);
+            console.log('✅ Server Test Başarılı:', result);
+            return result;
+            
         } catch (error) {
-            console.log(`${endpoint}: Error - ${error.message}`);
+            const result = {
+                test: 'Server Connection',
+                status: 'FAILED',
+                error: error.message,
+                timestamp: Date.now()
+            };
+            
+            this.testResults.push(result);
+            console.error('❌ Server Test Başarısız:', result);
+            return result;
         }
     }
-}
 
-// 5. LocalStorage Check
-function checkStorage() {
-    console.log('💾 Storage Check:');
-    
-    try {
-        const clientId = localStorage.getItem('hayday_chat_client_id');
-        console.log('Client ID:', clientId);
+    // 💬 Chat API Test
+    async testChatAPI(message = 'test mesajı') {
+        console.log(`💬 Chat API testi: "${message}"`);
         
-        const keys = Object.keys(localStorage).filter(key => 
-            key.includes('chat') || key.includes('hayday')
-        );
-        console.log('Chat Keys:', keys);
-    } catch (error) {
-        console.error('Storage Error:', error);
-    }
-}
-
-// Ana Test Fonksiyonu
-async function runFullDiagnostic() {
-    console.log('🔍 === HAYDAY CHAT DIAGNOSTIC BAŞLIYOR ===');
-    
-    // Environment
-    checkEnvironment();
-    
-    // Storage
-    checkStorage();
-    
-    // Network
-    await analyzeNetwork();
-    
-    // Server Test
-    const serverOK = await testServer();
-    if (!serverOK) {
-        console.log('❌ Server bağlantısı başarısız, chat testi iptal edildi');
-        return;
-    }
-    
-    // Chat Test
-    console.log('\n📱 Chat API Testi:');
-    const testMessages = ['merhaba', 'altın transfer', 'fiyat listesi'];
-    
-    for (const msg of testMessages) {
-        const result = await testChatAPI(msg);
-        if (result) {
-            console.log(`✅ "${msg}" → "${result.reply}"`);
+        const clientId = `debug_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+        
+        try {
+            const start = performance.now();
+            const response = await fetch('/api/chat/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    clientId: clientId,
+                    message: message
+                })
+            });
+            
+            const duration = Math.round(performance.now() - start);
+            const data = await response.json();
+            
+            if (response.ok) {
+                const result = {
+                    test: 'Chat API',
+                    status: 'SUCCESS',
+                    input: message,
+                    output: data.reply,
+                    role: data.role,
+                    confidence: data.confidence,
+                    responseTime: duration,
+                    clientId: clientId,
+                    timestamp: Date.now()
+                };
+                
+                this.testResults.push(result);
+                console.log('✅ Chat Test Başarılı:', result);
+                console.log(`📤 Gönderilen: "${message}"`);
+                console.log(`📥 Yanıt: "${data.reply}"`);
+                console.log(`🤖 Role: ${data.role} (Confidence: ${data.confidence})`);
+                
+                return result;
+            } else {
+                throw new Error(`HTTP ${response.status}: ${data.error || 'Unknown error'}`);
+            }
+            
+        } catch (error) {
+            const result = {
+                test: 'Chat API',
+                status: 'FAILED',
+                input: message,
+                error: error.message,
+                clientId: clientId,
+                timestamp: Date.now()
+            };
+            
+            this.testResults.push(result);
+            console.error('❌ Chat Test Başarısız:', result);
+            return result;
         }
-        // 1 saniye bekle
-        await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    
-    console.log('🏁 === DIAGNOSTIC TAMAMLANDI ===');
+
+    // 📡 Network Analysis
+    async analyzeNetwork() {
+        console.log('📡 Network analizi başlatılıyor...');
+        
+        const endpoints = [
+            { url: '/ping', method: 'GET', description: 'Health Check' },
+            { url: '/api/chat/send', method: 'POST', description: 'Chat API' },
+            { url: '/admin.html', method: 'HEAD', description: 'Admin Panel' },
+            { url: '/login.html', method: 'HEAD', description: 'Login Page' },
+            { url: '/style.css', method: 'HEAD', description: 'Stylesheet' },
+            { url: '/script.js', method: 'HEAD', description: 'JavaScript' }
+        ];
+        
+        const results = [];
+        
+        for (const endpoint of endpoints) {
+            try {
+                const start = performance.now();
+                const response = await fetch(endpoint.url, { 
+                    method: endpoint.method === 'POST' ? 'HEAD' : endpoint.method 
+                });
+                const duration = Math.round(performance.now() - start);
+                
+                const result = {
+                    endpoint: endpoint.url,
+                    description: endpoint.description,
+                    status: response.status,
+                    responseTime: duration,
+                    success: true
+                };
+                
+                results.push(result);
+                console.log(`✅ ${endpoint.url}: ${response.status} (${duration}ms) - ${endpoint.description}`);
+                
+            } catch (error) {
+                const result = {
+                    endpoint: endpoint.url,
+                    description: endpoint.description,
+                    error: error.message,
+                    success: false
+                };
+                
+                results.push(result);
+                console.log(`❌ ${endpoint.url}: ${error.message} - ${endpoint.description}`);
+            }
+        }
+        
+        console.table(results);
+        return results;
+    }
+
+    // 💾 Storage Check
+    checkStorage() {
+        console.log('💾 Storage kontrolü...');
+        
+        const storageInfo = {
+            localStorage: {
+                available: false,
+                keys: [],
+                chatKeys: [],
+                totalSize: 0
+            },
+            sessionStorage: {
+                available: false,
+                keys: []
+            }
+        };
+        
+        // localStorage check
+        try {
+            storageInfo.localStorage.available = true;
+            storageInfo.localStorage.keys = Object.keys(localStorage);
+            storageInfo.localStorage.chatKeys = Object.keys(localStorage).filter(key => 
+                key.includes('chat') || key.includes('hayday') || key.includes('admin')
+            );
+            
+            // Calculate storage size
+            let totalSize = 0;
+            for (let key of storageInfo.localStorage.keys) {
+                totalSize += localStorage.getItem(key).length;
+            }
+            storageInfo.localStorage.totalSize = totalSize;
+            
+            console.log('✅ localStorage Available');
+            console.log('📊 Total Keys:', storageInfo.localStorage.keys.length);
+            console.log('💬 Chat Keys:', storageInfo.localStorage.chatKeys);
+            console.log('📏 Storage Size:', totalSize + ' characters');
+            
+            // Show chat-related data
+            storageInfo.localStorage.chatKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                console.log(`🔑 ${key}:`, value.length > 100 ? value.substring(0, 100) + '...' : value);
+            });
+            
+        } catch (error) {
+            console.error('❌ localStorage Error:', error.message);
+        }
+        
+        // sessionStorage check
+        try {
+            storageInfo.sessionStorage.available = true;
+            storageInfo.sessionStorage.keys = Object.keys(sessionStorage);
+            console.log('✅ sessionStorage Available');
+        } catch (error) {
+            console.error('❌ sessionStorage Error:', error.message);
+        }
+        
+        return storageInfo;
+    }
+
+    // 🌐 Environment Check
+    checkEnvironment() {
+        console.log('🌐 Environment bilgileri:');
+        console.table(this.systemInfo);
+        
+        // Additional checks
+        const additional = {
+            isDevelopment: this.systemInfo.hostname.includes('localhost') || this.systemInfo.hostname.includes('127.0.0.1'),
+            isHTTPS: this.systemInfo.protocol === 'https:',
+            isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(this.systemInfo.userAgent),
+            browserName: this.getBrowserName(),
+            hayChatLoaded: typeof window.HayDayChat !== 'undefined'
+        };
+        
+        console.log('🔍 Additional Info:', additional);
+        return { ...this.systemInfo, ...additional };
+    }
+
+    getBrowserName() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Firefox')) return 'Firefox';
+        if (ua.includes('Chrome')) return 'Chrome';
+        if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
+        if (ua.includes('Edge')) return 'Edge';
+        return 'Unknown';
+    }
+
+    // 📈 Performance Test
+    async performanceTest() {
+        console.log('📈 Performance testi başlatılıyor...');
+        
+        const tests = [];
+        
+        // DOM Performance
+        const domStart = performance.now();
+        const elements = document.querySelectorAll('*').length;
+        const domTime = performance.now() - domStart;
+        
+        tests.push({
+            test: 'DOM Query',
+            elements: elements,
+            duration: Math.round(domTime * 1000) / 1000,
+            unit: 'ms'
+        });
+        
+        // JavaScript Performance
+        const jsStart = performance.now();
+        let sum = 0;
+        for (let i = 0; i < 100000; i++) {
+            sum += Math.random();
+        }
+        const jsTime = performance.now() - jsStart;
+        
+        tests.push({
+            test: 'JavaScript Calculation',
+            operations: 100000,
+            duration: Math.round(jsTime * 1000) / 1000,
+            unit: 'ms'
+        });
+        
+        // LocalStorage Performance
+        try {
+            const lsStart = performance.now();
+            for (let i = 0; i < 100; i++) {
+                localStorage.setItem(`perf_test_${i}`, 'test_data_' + i);
+            }
+            for (let i = 0; i < 100; i++) {
+                localStorage.getItem(`perf_test_${i}`);
+            }
+            for (let i = 0; i < 100; i++) {
+                localStorage.removeItem(`perf_test_${i}`);
+            }
+            const lsTime = performance.now() - lsStart;
+            
+            tests.push({
+                test: 'LocalStorage Operations',
+                operations: 300,
+                duration: Math.round(lsTime * 1000) / 1000,
+                unit: 'ms'
+            });
+        } catch (error) {
+            tests.push({
+                test: 'LocalStorage Operations',
+                error: error.message
+            });
+        }
+        
+        console.table(tests);
+        return tests;
+    }
+
+    // 🚨 Error Report
+    getErrors() {
+        console.log('🚨 Error Raporu:');
+        
+        if (this.errors.length === 0) {
+            console.log('✅ Hata bulunamadı!');
+            return [];
+        }
+        
+        console.table(this.errors);
+        
+        // Hata istatistikleri
+        const errorStats = {
+            total: this.errors.length,
+            jsErrors: this.errors.filter(e => e.type === 'JavaScript Error').length,
+            promiseRejections: this.errors.filter(e => e.type === 'Promise Rejection').length,
+            recent: this.errors.filter(e => Date.now() - e.timestamp < 60000).length
+        };
+        
+        console.log('📊 Error Statistics:', errorStats);
+        return this.errors;
+    }
+
+    // 📊 Comprehensive Report
+    getReport() {
+        const report = {
+            debugSession: {
+                startTime: this.startTime,
+                duration: Date.now() - this.startTime,
+                timestamp: new Date().toISOString()
+            },
+            system: this.systemInfo,
+            tests: {
+                total: this.testResults.length,
+                successful: this.testResults.filter(t => t.status === 'SUCCESS').length,
+                failed: this.testResults.filter(t => t.status === 'FAILED').length,
+                results: this.testResults
+            },
+            errors: {
+                total: this.errors.length,
+                list: this.errors
+            },
+            network: this.networkMetrics
+        };
+        
+        console.log('📊 === HAYDAY CHAT DEBUG REPORT ===');
+        console.log(JSON.stringify(report, null, 2));
+        
+        // Summary
+        console.log(`
+📈 ÖZET:
+✅ Başarılı Testler: ${report.tests.successful}/${report.tests.total}
+❌ Başarısız Testler: ${report.tests.failed}/${report.tests.total}
+🚨 Toplam Hata: ${report.errors.total}
+⏱️ Debug Süresi: ${Math.round(report.debugSession.duration/1000)} saniye
+        `);
+        
+        return report;
+    }
+
+    // 🧹 Cleanup
+    cleanup() {
+        console.log('🧹 Cache ve test verileri temizleniyor...');
+        
+        // Clear test data from localStorage
+        const keys = Object.keys(localStorage).filter(key => 
+            key.startsWith('debug_') || key.startsWith('perf_test_')
+        );
+        
+        keys.forEach(key => localStorage.removeItem(key));
+        
+        console.log(`✅ ${keys.length} test anahtarı temizlendi`);
+        
+        // Reset internal data
+        this.testResults = [];
+        this.errors = [];
+        this.networkMetrics = {};
+        
+        console.log('✅ Debug verileri temizlendi');
+    }
+
+    // 🚀 Main Comprehensive Diagnostic
+    async runComprehensiveDiagnostic() {
+        console.log(`
+🚀 === HAYDAY CHAT COMPREHENSIVE DIAGNOSTIC ===
+Başlatılıyor: ${new Date().toLocaleString('tr-TR')}
+        `);
+        
+        try {
+            // 1. Environment Check
+            console.log('\n🌐 1/6 Environment Check...');
+            this.checkEnvironment();
+            
+            // 2. Storage Check
+            console.log('\n💾 2/6 Storage Check...');
+            this.checkStorage();
+            
+            // 3. Network Analysis
+            console.log('\n📡 3/6 Network Analysis...');
+            await this.analyzeNetwork();
+            
+            // 4. Server Test
+            console.log('\n🔍 4/6 Server Test...');
+            const serverResult = await this.testServer();
+            
+            // 5. Chat API Tests (only if server is OK)
+            console.log('\n💬 5/6 Chat API Tests...');
+            if (serverResult.status === 'SUCCESS') {
+                const testMessages = [
+                    'merhaba',
+                    'altın transfer nasıl yapılır?',
+                    'fiyat listesi',
+                    'depolama hesaplama'
+                ];
+                
+                for (const message of testMessages) {
+                    await this.testChatAPI(message);
+                    // Wait 1 second between tests
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            } else {
+                console.log('⚠️ Server bağlantısı başarısız, chat testleri atlandı');
+            }
+            
+            // 6. Performance Test
+            console.log('\n📈 6/6 Performance Test...');
+            await this.performanceTest();
+            
+            // Final Report
+            console.log('\n📊 Generating Final Report...');
+            this.getReport();
+            
+            console.log(`
+🏁 === DIAGNOSTIC COMPLETED ===
+Toplam Süre: ${Math.round((Date.now() - this.startTime)/1000)} saniye
+Durum: ${this.testResults.filter(t => t.status === 'FAILED').length === 0 ? '✅ BAŞARILI' : '⚠️ SORUNLAR VAR'}
+            `);
+            
+        } catch (error) {
+            console.error('🚨 Diagnostic Error:', error);
+        }
+    }
 }
 
-// Error Handler
-window.addEventListener('error', (e) => {
-    console.error('🚨 Global Error:', e.error);
-});
+// Initialize HayDay Debugger
+window.debugger = new HayDayDebugger();
 
-// Network Error Handler  
-window.addEventListener('unhandledrejection', (e) => {
-    console.error('🚨 Promise Rejection:', e.reason);
-});
-
-// Otomatik başlat
-console.log('⚡ Quick Debug yüklendi!');
-console.log('📝 Komutlar:');
-console.log('  - runFullDiagnostic() : Tam teşhis');
-console.log('  - testChatAPI("mesaj") : Chat test');
-console.log('  - testServer() : Server test');
-
-// 2 saniye sonra otomatik başlat
-setTimeout(() => {
-    console.log('🚀 Otomatik diagnostic başlatılıyor...');
-    runFullDiagnostic();
-}, 2000);
+// Export for global access
+window.HayDayDebugger = HayDayDebugger;

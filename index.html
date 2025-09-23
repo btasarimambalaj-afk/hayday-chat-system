@@ -3,69 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HayDay Destek Chat</title>
+    <title>HayDay Destek Chat - Premium Deneyim</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="HayDay oyun destek sistemi - Altın transfer, fiyat listesi, depolama hesaplama">
+    <meta name="keywords" content="hayday, oyun, destek, chat, bot">
 </head>
 <body>
     <!-- Chat Container -->
     <div class="chat-container" id="chatContainer">
-        
-        <!-- Chat Header -->
+        <!-- Header -->
         <div class="chat-header">
-            <div class="chat-header-content">
+            <div class="chat-header-info">
+                <div class="chat-avatar">
+                    🌾
+                </div>
                 <div class="chat-title">
-                    <span class="chat-avatar">🌾</span>
-                    <div>
-                        <h3>HayDay Destek</h3>
-                        <span class="chat-status online" id="connectionStatus">Çevrimiçi</span>
+                    <h3>HayDay Destek</h3>
+                    <p class="chat-status" id="chatStatus">
+                        <span class="status-indicator online"></span>
+                        Çevrimiçi
+                    </p>
+                </div>
+            </div>
+
+            <div class="chat-header-actions">
+                <button class="action-btn" id="searchBtn" title="Mesajlarda Ara">
+                    <span>🔍</span>
+                </button>
+                <button class="action-btn" id="closeBtn" title="Kapat">
+                    <span>✕</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container" id="searchContainer" style="display: none;">
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" placeholder="Mesajlarda ara..." maxlength="100">
+                <button class="search-clear" id="searchClear" title="Temizle">✕</button>
+            </div>
+        </div>
+
+        <!-- Chat Content -->
+        <div class="chat-content">
+            <!-- Quick Actions -->
+            <div class="quick-actions" id="quickActions">
+                <button class="quick-action-btn" data-message="Altın transfer nasıl yapılır?">
+                    💰 Altın Transfer
+                </button>
+                <button class="quick-action-btn" data-message="Fiyat listesi">
+                    💸 Fiyat Listesi
+                </button>
+                <button class="quick-action-btn" data-message="Depolama hesaplama">
+                    📦 Depolama
+                </button>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="chat-welcome" id="welcomeMessage">
+                    <div class="welcome-avatar">
+                        🌾
                     </div>
-                </div>
-                
-                <div class="chat-actions">
-                    <button class="action-btn" id="searchBtn" title="Ara">🔍</button>
-                    <button class="action-btn" id="closeBtn" title="Kapat">✕</button>
+                    <h4>HayDay Destek'e Hoş Geldiniz!</h4>
+                    <p>Size nasıl yardımcı olabilirim? HayDay oyunu ve sitemizdeki hizmetler hakkında sorularınızı sorabilirsiniz.</p>
                 </div>
             </div>
-            
-            <!-- Search Bar -->
-            <div class="search-container" id="searchContainer" style="display: none;">
-                <input type="text" id="searchInput" placeholder="Mesajlarda ara..." class="search-input">
-                <button class="search-clear-btn" id="searchClear">✕</button>
-            </div>
-        </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions" id="quickActions">
-            <button class="quick-action-btn" data-message="Altın transfer nasıl yapılır?">
-                🏆 Altın Transfer
-            </button>
-            <button class="quick-action-btn" data-message="Fiyat listesi göster">
-                💸 Fiyat Listesi
-            </button>
-            <button class="quick-action-btn" data-message="Depolama hesaplama">
-                📦 Depolama
-            </button>
-        </div>
-
-        <!-- Messages Area -->
-        <div class="chat-messages" id="chatMessages">
-            <!-- Welcome Message -->
-            <div class="chat-welcome" id="welcomeMessage">
-                <div class="welcome-avatar">🌾</div>
-                <h4>HayDay Destek'e Hoş Geldiniz!</h4>
-                <p>Size nasıl yardımcı olabilirim? HayDay oyunu ve sitemizdeki hizmetler hakkında sorularınızı sorabilirsiniz.</p>
-            </div>
-        </div>
-
-        <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typingIndicator" style="display: none;">
-            <div class="typing-avatar">🤖</div>
-            <div class="typing-text">
-                HayDay Bot yazıyor...
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-avatar">
+                    🤖
+                </div>
+                <div class="typing-text">
+                    HayDay Bot yazıyor...
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,34 +116,33 @@
     <!-- Footer Actions -->
     <div class="chat-footer-actions">
         <a href="login.html" class="footer-link" id="adminLink">
-            👑👑👑 Admin
+            👑👑👑
+            Admin
         </a>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Chat System Script -->
     <script src="script.js"></script>
     <script>
-        // HayDay Chat Class
         class HayDayChat {
             constructor() {
                 this.clientId = this.generateClientId();
-                this.messageQueue = [];
-                this.isProcessing = false;
-                this.lastMessageTimestamp = 0;
+                this.lastTimestamp = 0;
                 this.pollInterval = null;
+                this.isPolling = false;
+                this.connectionStatus = 'connecting';
                 
-                this.initializeChat();
-                this.bindEvents();
-                this.startPolling();
+                this.init();
             }
 
             generateClientId() {
-                return 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                return 'client_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
             }
 
-            initializeChat() {
-                console.log('🌾 HayDay Chat başlatılıyor...');
-                this.showConnectionStatus('online');
+            init() {
+                this.bindEvents();
+                this.startPolling();
+                this.showConnectionStatus('connecting');
                 
                 // Show quick actions initially
                 document.getElementById('quickActions').classList.add('show');
@@ -161,14 +180,14 @@
                 elements.searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
                 elements.searchClear.addEventListener('click', () => this.clearSearch());
 
-                // Quick action buttons
-                document.querySelectorAll('.quick-action-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
+                // Quick actions
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('quick-action-btn')) {
                         const message = e.target.getAttribute('data-message');
-                        document.getElementById('messageInput').value = message;
+                        elements.messageInput.value = message;
                         this.handleInputChange(message);
                         this.sendMessage();
-                    });
+                    }
                 });
 
                 // Close chat
@@ -181,7 +200,7 @@
                 const sendButton = document.getElementById('sendButton');
                 const charCount = document.getElementById('charCount');
                 
-                sendButton.disabled = !value.trim();
+                sendButton.disabled = value.trim().length === 0;
                 charCount.textContent = `${value.length}/1000`;
                 
                 // Auto-resize textarea
@@ -191,15 +210,11 @@
             }
 
             async sendMessage() {
-                const input = document.getElementById('messageInput');
-                const message = input.value.trim();
+                const messageInput = document.getElementById('messageInput');
+                const message = messageInput.value.trim();
                 
-                if (!message || this.isProcessing) return;
-                
-                this.isProcessing = true;
-                input.value = '';
-                this.handleInputChange('');
-                
+                if (!message) return;
+
                 // Add user message immediately
                 this.addMessage({
                     role: 'user',
@@ -207,10 +222,14 @@
                     timestamp: Date.now(),
                     clientId: this.clientId
                 });
-                
+
+                // Clear input
+                messageInput.value = '';
+                this.handleInputChange('');
+
                 // Show typing indicator
-                this.showTyping();
-                
+                this.showTypingIndicator(true);
+
                 try {
                     const response = await fetch('/api/chat/send', {
                         method: 'POST',
@@ -222,15 +241,15 @@
                             clientId: this.clientId
                         })
                     });
-                    
+
                     if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    
+
                     const data = await response.json();
                     
                     // Hide typing indicator
-                    this.hideTyping();
+                    this.showTypingIndicator(false);
                     
                     // Add bot response
                     if (data.response) {
@@ -238,28 +257,24 @@
                             role: 'assistant',
                             content: data.response,
                             timestamp: Date.now(),
-                            clientId: this.clientId,
-                            source: data.source || 'chatbot'
+                            clientId: this.clientId
                         });
+                        
+                        this.showConnectionStatus('connected');
                     }
-                    
-                    this.showConnectionStatus('online');
-                    
+
                 } catch (error) {
                     console.error('Send message error:', error);
-                    this.hideTyping();
+                    this.showTypingIndicator(false);
                     
+                    // Add error message
                     this.addMessage({
                         role: 'assistant',
-                        content: 'Üzgünüm, bir hata oluştu. Lütfen Sorular & İletişim sayfamızdan bize ulaşın.',
-                        timestamp: Date.now(),
-                        clientId: this.clientId
+                        content: 'Üzgünüm, bir hata oluştu. Lütfen Sorular & İletişim sayfamızdan bize ulaşın.'
                     });
 
                     this.showConnectionStatus('error');
                 }
-                
-                this.isProcessing = false;
             }
 
             addMessage(message) {
@@ -289,7 +304,7 @@
                             ${avatar}
                         </div>
                         <div class="message-info">
-                            <span class="message-role">${badge}</span>
+                            <span class="message-sender">${badge}</span>
                             <span class="message-time">${time}</span>
                         </div>
                     </div>
@@ -297,97 +312,129 @@
                 `;
 
                 messagesContainer.appendChild(messageEl);
-                this.scrollToBottom();
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Update last timestamp
+                if (message.timestamp) {
+                    this.lastTimestamp = Math.max(this.lastTimestamp, message.timestamp);
+                }
             }
 
             getRoleAvatar(role) {
                 const avatars = {
                     'user': '👤',
                     'assistant': '🤖',
-                    'admin': '👑'
+                    'system': '⚙️'
                 };
-                return avatars[role] || '❓';
+                return avatars[role] || '💬';
             }
 
             getRoleBadge(role) {
                 const badges = {
                     'user': 'Siz',
                     'assistant': 'HayDay Bot',
-                    'admin': 'Admin'
+                    'system': 'Sistem'
                 };
                 return badges[role] || 'Bilinmeyen';
             }
 
             getRoleColor(role) {
                 const colors = {
-                    'user': '#007bff',
-                    'assistant': '#28a745',
-                    'admin': '#ffc107'
+                    'user': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'assistant': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    'system': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
                 };
-                return colors[role] || '#6c757d';
+                return colors[role] || '#ccc';
             }
 
             formatMessageContent(content) {
-                return content
-                    .replace(/\n/g, '<br>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/`(.*?)`/g, '<code>$1</code>');
+                if (!content) return '';
+                
+                // Convert URLs to links
+                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                content = content.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+                
+                // Convert line breaks
+                content = content.replace(/\n/g, '<br>');
+                
+                return content;
             }
 
-            showTyping() {
-                document.getElementById('typingIndicator').style.display = 'block';
-                this.scrollToBottom();
-            }
-
-            hideTyping() {
-                document.getElementById('typingIndicator').style.display = 'none';
-            }
-
-            scrollToBottom() {
+            showTypingIndicator(show) {
+                const indicator = document.getElementById('typingIndicator');
                 const messagesContainer = document.getElementById('chatMessages');
-                setTimeout(() => {
+                
+                indicator.style.display = show ? 'flex' : 'none';
+                
+                if (show) {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 100);
+                }
             }
 
             showConnectionStatus(status) {
-                const statusEl = document.getElementById('connectionStatus');
-                const statusTexts = {
-                    'online': 'Çevrimiçi',
-                    'connecting': 'Bağlanıyor...',
-                    'error': 'Bağlantı Hatası'
+                const statusEl = document.querySelector('.chat-status');
+                const indicator = document.querySelector('.status-indicator');
+                
+                this.connectionStatus = status;
+                
+                const statusConfig = {
+                    'connecting': { text: 'Bağlanıyor...', class: 'connecting' },
+                    'connected': { text: 'Çevrimiçi', class: 'online' },
+                    'error': { text: 'Bağlantı Hatası', class: 'offline' },
+                    'offline': { text: 'Çevrimdışı', class: 'offline' }
                 };
                 
-                statusEl.textContent = statusTexts[status] || status;
-                statusEl.className = `chat-status ${status}`;
+                const config = statusConfig[status] || statusConfig.offline;
+                statusEl.innerHTML = `<span class="status-indicator ${config.class}"></span>${config.text}`;
             }
 
             startPolling() {
+                if (this.isPolling) return;
+                
+                this.isPolling = true;
                 this.pollInterval = setInterval(() => {
-                    this.checkForNewMessages();
-                }, 3000); // Poll every 3 seconds
+                    this.pollForNewMessages();
+                }, 2000); // Poll every 2 seconds
             }
 
-            async checkForNewMessages() {
+            stopPolling() {
+                if (this.pollInterval) {
+                    clearInterval(this.pollInterval);
+                    this.pollInterval = null;
+                }
+                this.isPolling = false;
+            }
+
+            async pollForNewMessages() {
                 try {
-                    const response = await fetch(`/api/chat/poll/${this.clientId}?after=${this.lastMessageTimestamp}`);
+                    const response = await fetch(`/api/chat/poll/${this.clientId}?after=${this.lastTimestamp}`);
                     
-                    if (response.ok) {
-                        const data = await response.json();
-                        
-                        if (data.newMessages && data.newMessages.length > 0) {
-                            data.newMessages.forEach(message => {
-                                if (message.role !== 'user') { // Don't duplicate user messages
-                                    this.addMessage(message);
-                                }
-                            });
-                            
-                            this.lastMessageTimestamp = data.lastTimestamp;
-                        }
+                    if (!response.ok) {
+                        throw new Error(`Poll failed: ${response.status}`);
                     }
+                    
+                    const data = await response.json();
+                    
+                    if (data.newMessages && data.newMessages.length > 0) {
+                        data.newMessages.forEach(message => {
+                            if (message.role !== 'user') { // Don't show our own messages
+                                this.addMessage(message);
+                            }
+                        });
+                    }
+                    
+                    if (data.lastTimestamp) {
+                        this.lastTimestamp = data.lastTimestamp;
+                    }
+                    
+                    // Update connection status
+                    if (this.connectionStatus !== 'connected') {
+                        this.showConnectionStatus('connected');
+                    }
+                    
                 } catch (error) {
                     console.error('Polling error:', error);
+                    this.showConnectionStatus('error');
                 }
             }
 
@@ -429,28 +476,6 @@
                 this.handleSearch('');
             }
         }
-
-        // Utility functions
-        HayDayChat.Utils = {
-            formatTime: (timestamp) => {
-                return new Date(timestamp).toLocaleTimeString('tr-TR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-            }
-        };
-
-        // Search functions
-        HayDayChat.Search = {
-            fuzzyMatch: (text, query) => {
-                return text.toLowerCase().includes(query.toLowerCase());
-            },
-            
-            highlight: (text, query) => {
-                const regex = new RegExp(`(${query})`, 'gi');
-                return text.replace(regex, '<mark>$1</mark>');
-            }
-        };
 
         // Initialize chat when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {

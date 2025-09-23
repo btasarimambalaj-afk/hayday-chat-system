@@ -1,0 +1,158 @@
+// 🚀 HayDay Chat Quick Debug - Browser Console'da çalıştır
+// F12 basıp Console tab'ında bu kodu yapıştır
+
+console.log('🚀 HayDay Chat Debug Başlatılıyor...');
+
+// 1. Server Connection Test
+async function testServer() {
+    try {
+        const response = await fetch('/ping');
+        const data = await response.json();
+        console.log('✅ Server Status:', data);
+        return true;
+    } catch (error) {
+        console.error('❌ Server Error:', error);
+        return false;
+    }
+}
+
+// 2. Chat API Test
+async function testChatAPI(message = 'test mesajı') {
+    const clientId = 'debug_' + Date.now();
+    
+    try {
+        console.log(`📤 Mesaj gönderiliyor: "${message}"`);
+        
+        const response = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                clientId: clientId,
+                message: message
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log('✅ Chat API Success:', data);
+            console.log(`📥 Bot Response: "${data.reply}"`);
+            console.log(`🤖 Role: ${data.role}`);
+            console.log(`📊 Confidence: ${data.confidence}`);
+            return data;
+        } else {
+            console.error('❌ Chat API Error:', data);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Network Error:', error);
+        return null;
+    }
+}
+
+// 3. Environment Check
+function checkEnvironment() {
+    console.log('🌐 Environment Check:');
+    console.log('URL:', window.location.href);
+    console.log('Origin:', window.location.origin);
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Online:', navigator.onLine);
+}
+
+// 4. Network Analysis
+async function analyzeNetwork() {
+    console.log('📡 Network Analysis:');
+    
+    // Test different endpoints
+    const endpoints = ['/ping', '/api/chat/send', '/admin.html'];
+    
+    for (const endpoint of endpoints) {
+        try {
+            const start = performance.now();
+            const response = await fetch(endpoint, { method: 'HEAD' });
+            const duration = Math.round(performance.now() - start);
+            
+            console.log(`${endpoint}: ${response.status} (${duration}ms)`);
+        } catch (error) {
+            console.log(`${endpoint}: Error - ${error.message}`);
+        }
+    }
+}
+
+// 5. LocalStorage Check
+function checkStorage() {
+    console.log('💾 Storage Check:');
+    
+    try {
+        const clientId = localStorage.getItem('hayday_chat_client_id');
+        console.log('Client ID:', clientId);
+        
+        const keys = Object.keys(localStorage).filter(key => 
+            key.includes('chat') || key.includes('hayday')
+        );
+        console.log('Chat Keys:', keys);
+    } catch (error) {
+        console.error('Storage Error:', error);
+    }
+}
+
+// Ana Test Fonksiyonu
+async function runFullDiagnostic() {
+    console.log('🔍 === HAYDAY CHAT DIAGNOSTIC BAŞLIYOR ===');
+    
+    // Environment
+    checkEnvironment();
+    
+    // Storage
+    checkStorage();
+    
+    // Network
+    await analyzeNetwork();
+    
+    // Server Test
+    const serverOK = await testServer();
+    if (!serverOK) {
+        console.log('❌ Server bağlantısı başarısız, chat testi iptal edildi');
+        return;
+    }
+    
+    // Chat Test
+    console.log('\n📱 Chat API Testi:');
+    const testMessages = ['merhaba', 'altın transfer', 'fiyat listesi'];
+    
+    for (const msg of testMessages) {
+        const result = await testChatAPI(msg);
+        if (result) {
+            console.log(`✅ "${msg}" → "${result.reply}"`);
+        }
+        // 1 saniye bekle
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    console.log('🏁 === DIAGNOSTIC TAMAMLANDI ===');
+}
+
+// Error Handler
+window.addEventListener('error', (e) => {
+    console.error('🚨 Global Error:', e.error);
+});
+
+// Network Error Handler  
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('🚨 Promise Rejection:', e.reason);
+});
+
+// Otomatik başlat
+console.log('⚡ Quick Debug yüklendi!');
+console.log('📝 Komutlar:');
+console.log('  - runFullDiagnostic() : Tam teşhis');
+console.log('  - testChatAPI("mesaj") : Chat test');
+console.log('  - testServer() : Server test');
+
+// 2 saniye sonra otomatik başlat
+setTimeout(() => {
+    console.log('🚀 Otomatik diagnostic başlatılıyor...');
+    runFullDiagnostic();
+}, 2000);

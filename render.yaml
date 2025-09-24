@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: hayday-chat-system
+    env: node
+    region: oregon
+    plan: free
+    
+    # Build configuration
+    buildCommand: |
+      npm ci
+      echo "Build completed successfully"
+    
+    startCommand: node server.js
+    
+    # Health check configuration
+    healthCheckPath: /ping
+    
+    # Auto-deploy from GitHub
+    repo: https://github.com/YOUR-USERNAME/hayday-chat-system.git
+    branch: main
+    
+    # Environment variables (configure in Render dashboard)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: LOG_LEVEL
+        value: info
+      - key: ENABLE_FILE_BACKUP
+        value: "true"
+      - key: MAX_BACKUP_FILES
+        value: "5"
+      # Add your actual values in Render dashboard:
+      # OPENAI_API_KEY, TELEGRAM_BOT_TOKEN, ADMIN_TELEGRAM_ID, RENDER_EXTERNAL_URL
+    
+    # Disk storage for JSON files
+    disk:
+      name: hayday-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
+
+# Optional: Background service for cleanup tasks
+  - type: background
+    name: hayday-cleanup
+    env: node
+    buildCommand: npm ci
+    startCommand: node cleanup.js
+    schedule: "0 2 * * *"  # Run daily at 2 AM
+    envVars:
+      - fromService:
+          type: web
+          name: hayday-chat-system
+          envVarKey: NODE_ENV

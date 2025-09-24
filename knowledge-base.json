@@ -1,0 +1,155 @@
+[
+  {
+    "keywords": ["merhaba", "selam", "hey", "hi", "hello"],
+    "response": "Merhaba! HayDay Malzemeleri destek ekibine hoş geldiniz. Size nasıl yardımcı olabilirim? Altın transferi, makine bilgileri, depolama hesaplama gibi konularda yardımcı olabilirim.",
+    "confidence": 0.95,
+    "usage": 0,
+    "successRate": 0.9,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["altın", "para", "transfer", "göndermek", "yollamak"],
+    "response": "Altın transferi işlemleri için 'Sorular & İletişim' sayfamızı ziyaret edebilirsiniz. Orada detaylı transfer prosedürü ve güvenlik bilgileri yer almaktadır. Size özel yardım gerekirse bu sohbet üzerinden de destek verebilirim.",
+    "confidence": 0.9,
+    "usage": 0,
+    "successRate": 0.85,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["fiyat", "ücret", "ne kadar", "maliyet", "para"],
+    "response": "Güncel ürün fiyatları için 'Ürün Listenizi Oluşturun' sayfamızı inceleyebilirsiniz. Orada tüm HayDay ürünlerinin anlık fiyatları ve stok durumları yer almaktadır. Hangi ürün hakkında bilgi almak istiyorsunuz?",
+    "confidence": 0.85,
+    "usage": 0,
+    "successRate": 0.8,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["depolama", "ağıl", "ambar", "hesaplama", "kapasite"],
+    "response": "Depolama kapasitesi hesaplamaları için özel 'Depolama Hesaplayıcısı' sayfamızı kullanabilirsiniz. Bu araç ile ağıl ve ambar seviyelerinizi optimize edebilir, en verimli yatırımı planlayabilirsiniz.",
+    "confidence": 0.9,
+    "usage": 0,
+    "successRate": 0.88,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["makine", "üretim", "seviye", "makina", "fabrika"],
+    "response": "Makine seviyeleri ve üretim bilgileri için 'Makineler' sayfamızdan detaylı bilgi alabilirsiniz. Hangi makine hakkında bilgi almak istiyorsunuz? Size özel üretim stratejisi de önerebilirim.",
+    "confidence": 0.87,
+    "usage": 0,
+    "successRate": 0.82,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["teslimat", "kargo", "gönderim", "teslim"],
+    "response": "Teslimat süremiz genellikle 3-5 saat tir. Yoğunluk zamanı 5-6 saat kadar uzamaktadır. 'Sorular & İletişim' sayfamızı ziyaret edebilirsiniz. Acil durumlar için özel arrangementlar da yapabiliriz.",
+    "confidence": 0.8,
+    "usage": 0,
+    "successRate": 0.75,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["yardım", "destek", "sorun", "problem", "help"],
+    "response": "Size yardımcı olmak için buradayım! Hangi konuda destek almak istiyorsunuz? HayDay oyunu, altın transferi, makine bilgileri, depolama hesaplama veya site ile ilgili her türlü sorunuzda yardımcı olabilirim.",
+    "confidence": 0.92,
+    "usage": 0,
+    "successRate": 0.9,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["ürün", "liste", "satın", "almak", "sipariş"],
+    "response": "Ürün satın alma işlemleri için 'Ürün Listenizi Oluşturun' sayfamızı kullanabilirsiniz. Orada istediğiniz ürünleri seçip kişisel alım listenizi oluşturabilirsiniz. Hangi ürünleri arıyorsunuz?",
+    "confidence": 0.83,
+    "usage": 0,
+    "successRate": 0.78,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["iletişim", "ulaşmak", "telefon", "mail", "e-posta"],
+    "response": "İletişim bilgilerimiz ve farklı iletişim seçenekleri için 'Sorular & İletişim' sayfamızı ziyaret edebilirsiniz. Canlı destek, e-posta ve diğer iletişim kanallarımızın tümü orada yer almaktadır.",
+    "confidence": 0.88,
+    "usage": 0,
+    "successRate": 0.85,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["hakkında", "kimsiniz", "şirket", "firma", "bilgi"],
+    "response": "Hakkımızda detaylı bilgi için 'Hakkımızda' sayfamızı ziyaret edebilirsiniz. HayDay Malzemeleri olarak 2013'ten beri HayDay oyuncularına hizmet veriyoruz. Güvenilir ve hızlı service anlayışımızla tanınırız.",
+    "confidence": 0.85,
+    "usage": 0,
+    "successRate": 0.8,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["blog", "makale", "haber", "güncel", "yenilik"],
+    "response": "HayDay ile ilgili güncel haberleri, ipuçlarını ve stratejileri 'Blog' sayfamızdan takip edebilirsiniz. Düzenli olarak yeni içerikler paylaşıyoruz. Hangi konularda makale okumak istiyorsunuz?",
+    "confidence": 0.75,
+    "usage": 0,
+    "successRate": 0.7,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["gizlilik", "politika", "veri", "güvenlik", "kişisel"],
+    "response": "Gizlilik politikamız ve kişisel veri güvenliği hakkında detaylı bilgi için 'Gizlilik Politikası' sayfamızı inceleyebilirsiniz. Verilerinizin güvenliği bizim için önceliktir.",
+    "confidence": 0.9,
+    "usage": 0,
+    "successRate": 0.85,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["kullanım", "şartlar", "koşul", "kural", "terms"],
+    "response": "Hizmet kullanım şartlarımız ve genel koşullarımız için 'Kullanım Şartları' sayfamızı okuyabilirsiniz. Tüm hizmet detayları ve kullanım kuralları orada açıklanmıştır.",
+    "confidence": 0.82,
+    "usage": 0,
+    "successRate": 0.78,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["güvenli", "güven", "dolandırıcı", "sahte", "gerçek"],
+    "response": "HayDay Malzemeleri olarak 2013'ten beri güvenilir hizmet veriyoruz. Tüm işlemlerimiz güvenli ve yasal yollarla gerçekleştirilir. Güvenlik endişeleriniz varsa 'Hakkımızda' ve 'Güvenlik' sayfalarımızı inceleyebilirsiniz.",
+    "confidence": 0.88,
+    "usage": 0,
+    "successRate": 0.85,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["ne zaman", "saat", "zaman", "süre", "when"],
+    "response": "İşlem süreleri konusunda: Altın transferleri genellikle 30 dakika - 2 saat arasında, kargo teslimatları 3-5 iş günü sürmektedir. Detaylı bilgi için 'Sorular & İletişim' sayfamızı ziyaret edebilirsiniz.",
+    "confidence": 0.8,
+    "usage": 0,
+    "successRate": 0.75,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["teşekkür", "sağol", "thanks", "thank you", "merci"],
+    "response": "Rica ederim! Size yardımcı olabildiğim için memnunum. Başka sorularınız olursa çekinmeden sorabilirsiniz. HayDay Malzemeleri olarak her zaman hizmetinizdeyiz! 😊",
+    "confidence": 0.95,
+    "usage": 0,
+    "successRate": 0.95,
+    "createdAt": 1699123456789,
+    "source": "default"
+  },
+  {
+    "keywords": ["bye", "görüşürüz", "hoşça kal", "bb", "goodbye"],
+    "response": "Hoşça kalın! HayDay Malzemeleri'ni tercih ettiğiniz için teşekkür ederiz. İhtiyacınız olduğunda her zaman buradayız. İyi günler! 👋",
+    "confidence": 0.9,
+    "usage": 0,
+    "successRate": 0.9,
+    "createdAt": 1699123456789,
+    "source": "default"
+  }
+]

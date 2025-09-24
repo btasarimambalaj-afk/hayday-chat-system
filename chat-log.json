@@ -1,9 +1,0 @@
-[
-  {
-    "timestamp": 1699123456789,
-    "clientId": "user_1699123456789_abc123",
-    "role": "user|chatbot|ai|admin",
-    "content": "Mesaj içeriği",
-    "confidence": 0.85
-  }
-]
